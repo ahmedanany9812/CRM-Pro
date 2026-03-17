@@ -1,5 +1,5 @@
-import { prisma } from "../lib/prisma";
-import { createClient } from "../lib/supabase/admin";
+import { prisma } from "../src/lib/prisma";
+import { createClient } from "../src/lib/supabase/admin";
 
 const AdminUser = async () => {
   const { data, error } = await createClient().auth.admin.createUser({
