@@ -1,8 +1,8 @@
 import { prisma } from "../lib/prisma";
-import { SupabaseAdminClient } from "../lib/supabase/admin";
+import { createClient } from "../lib/supabase/admin";
 
 const AdminUser = async () => {
-  const { data, error } = await SupabaseAdminClient().auth.admin.createUser({
+  const { data, error } = await createClient().auth.admin.createUser({
     email: "ahmed98@gmail.com",
     password: "ahm123",
     email_confirm: true,
