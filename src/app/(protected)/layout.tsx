@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "../globals.css";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/sidebar/AppSidebar";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -21,7 +22,10 @@ export default function DashboardLayout({
   return (
     <html lang="en">
       <body className={`${roboto.className} antialiased`}>
-        <SidebarProvider>{children}</SidebarProvider>
+        <SidebarProvider>
+          <AppSidebar />
+          <main className="flex-1">{children}</main>
+        </SidebarProvider>
       </body>
     </html>
   );
