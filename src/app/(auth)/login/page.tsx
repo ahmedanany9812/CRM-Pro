@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { createClient } from "../../lib/supabase/client";
+import { createClient } from "../../../lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -35,7 +35,7 @@ export default function Login() {
       if (error) {
         setError(error.message);
       } else {
-        router.push("/dashboard");
+        router.push("/");
         router.refresh();
       }
     } catch (err) {
