@@ -1,3 +1,9 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Reminders",
+  description: "Manage and View your Reminders",
+};
 export default function RemindersPage() {
   return (
     <div className="p-8">

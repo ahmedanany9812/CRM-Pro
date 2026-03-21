@@ -8,7 +8,7 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "CRM Pro – Login",
+  title: "Login",
   description: "Sign in to your CRM Pro account",
 };
 

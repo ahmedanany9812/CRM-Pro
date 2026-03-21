@@ -1,3 +1,9 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Users",
+  description: "Manage all crm users",
+};
 export default function page() {
   return (
     <div className="p-8">
