@@ -16,7 +16,7 @@ import {
 } from "../ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import SideFooter from "./footer";
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -31,10 +31,11 @@ export default function AppSidebar() {
   const isActive = (href: string) => {
     return pathname === href;
   };
+
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="p-4">
+        <div className="p-2">
           <div className="flex items-start flex-col gap-1">
             <span className="text-lg font-semibold">Whispyr</span>
             <span className="text-muted-foreground text-sm">Admin</span>
@@ -82,22 +83,9 @@ export default function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <Separator />
       <SidebarFooter>
-        <Separator />
-        <div className="p-4">
-          <div className="flex items-center gap-2">
-            <Avatar size="lg">
-              {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-              <AvatarFallback>AA</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col items-start gap-1">
-              <span className="text-md font-medium">Ahmed Anany</span>
-              <span className="text-sm text-muted-foreground">
-                ahmed98@gmail.com
-              </span>
-            </div>
-          </div>
-        </div>
+        <SideFooter />
       </SidebarFooter>
     </Sidebar>
   );
