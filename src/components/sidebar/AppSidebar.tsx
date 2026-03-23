@@ -17,8 +17,15 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SideFooter from "./footer";
+import { Profile, Role } from "@/generated/prisma/client";
 
-export default function AppSidebar() {
+export default function AppSidebar({
+  profile,
+  role,
+}: {
+  profile: Profile;
+  role: Role;
+}) {
   const pathname = usePathname();
   const mainSidebarItems = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -38,7 +45,7 @@ export default function AppSidebar() {
         <div className="p-2">
           <div className="flex items-start flex-col gap-1">
             <span className="text-lg font-semibold">Whispyr</span>
-            <span className="text-muted-foreground text-sm">Admin</span>
+            <span className="text-muted-foreground text-sm">{role}</span>
           </div>
         </div>
       </SidebarHeader>
@@ -85,7 +92,7 @@ export default function AppSidebar() {
       </SidebarContent>
       <Separator />
       <SidebarFooter>
-        <SideFooter />
+        <SideFooter profile={profile} />
       </SidebarFooter>
     </Sidebar>
   );
