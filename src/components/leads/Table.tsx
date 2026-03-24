@@ -1,7 +1,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -27,7 +26,7 @@ const leads: Lead[] = [
     name: "Jane Smith",
     email: "jane.smith@example.com",
     phone: "+1987654321",
-    status: "OPEN",
+    status: "WON",
     stage: "NEW",
     assignedToId: null,
     createdAt: new Date(),
@@ -38,8 +37,8 @@ const leads: Lead[] = [
     name: "Acme Corp",
     email: "contact@acmecorp.com",
     phone: "+1122334455",
-    status: "OPEN",
-    stage: "NEW",
+    status: "LOST",
+    stage: "QUALIFIED",
     assignedToId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -50,7 +49,7 @@ const leads: Lead[] = [
     email: "michael.j@example.com",
     phone: "+1555666777",
     status: "OPEN",
-    stage: "NEW",
+    stage: "NEGOTIATING",
     assignedToId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -60,8 +59,8 @@ const leads: Lead[] = [
     name: "Sarah Williams",
     email: "sarah.w@example.com",
     phone: "+1999888777",
-    status: "OPEN",
-    stage: "NEW",
+    status: "WON",
+    stage: "CONTACTED",
     assignedToId: null,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -74,26 +73,74 @@ function formatEnum(value: string) {
   return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "OPEN":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+    case "WON":
+      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300";
+    case "LOST":
+      return "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300";
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+  }
+};
+
+const getStageColor = (stage: string) => {
+  switch (stage) {
+    case "NEW":
+      return "bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-300";
+    case "CONTACTED":
+      return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300";
+    case "QUALIFIED":
+      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300";
+    case "NEGOTIATING":
+      return "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300";
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+  }
+};
+
 export function LeadsTable() {
   return (
     <Table>
-      <TableHeader>
+      <TableHeader className="bg-gray-50">
         <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Phone</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Stage</TableHead>
+          <TableHead className="text-muted-foreground">Name</TableHead>
+          <TableHead className="text-muted-foreground">Email</TableHead>
+          <TableHead className="text-muted-foreground">Phone</TableHead>
+          <TableHead className="text-center text-muted-foreground">
+            Status
+          </TableHead>
+          <TableHead className="text-center text-muted-foreground">
+            Stage
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {leads.map((lead) => (
           <TableRow key={lead.id}>
             <TableCell className="font-medium">{lead.name}</TableCell>
-            <TableCell>{lead.email}</TableCell>
-            <TableCell>{lead.phone}</TableCell>
-            <TableCell>{formatEnum(lead.status)}</TableCell>
-            <TableCell>{formatEnum(lead.stage)}</TableCell>
+            <TableCell className="text-muted-foreground">
+              {lead.email}
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+              {lead.phone}
+            </TableCell>
+            <TableCell align="center">
+              <p
+                className={`p-0.5 font-medium text-sm text-center rounded-sm ${getStatusColor(lead.status)}`}
+              >
+                {formatEnum(lead.status)}
+              </p>
+            </TableCell>
+            <TableCell align="center">
+              <p
+                className={`p-1 font-medium text-sm text-center rounded-sm ${getStageColor(lead.stage)}`}
+              >
+                {formatEnum(lead.stage)}
+              </p>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
