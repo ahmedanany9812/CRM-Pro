@@ -70,25 +70,27 @@ export default function AppSidebar({
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground">
-            ADMINISTRATION
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-3">
-              {adminSidebarItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={isActive(item.href)}>
-                    <Link href={item.href}>
-                      <item.icon className="size-4" />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {role === "ADMIN" && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-muted-foreground">
+              ADMINISTRATION
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-3">
+                {adminSidebarItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton asChild isActive={isActive(item.href)}>
+                      <Link href={item.href}>
+                        <item.icon className="size-4" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <Separator />
       <SidebarFooter>
