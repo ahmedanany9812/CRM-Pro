@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Field, FieldLabel } from "../ui/field";
+import { Field } from "../ui/field";
 import {
   InputGroup,
   InputGroupAddon,
@@ -24,7 +24,7 @@ const items = [
   { label: "Pineapple", value: "pineapple" },
 ];
 
-export function SelectDemo() {
+export function LeadsFilters() {
   return (
     <div className="flex flex-row items-center gap-3">
       <Select>

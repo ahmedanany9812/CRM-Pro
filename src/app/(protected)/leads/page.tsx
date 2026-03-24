@@ -1,4 +1,5 @@
-import { SelectDemo } from "@/components/leads/TableFilters";
+import { LeadsTable } from "@/components/leads/Table";
+import { LeadsFilters } from "@/components/leads/TableFilters";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,7 +13,8 @@ export default function LeadsPage() {
         <h1 className="text-3xl font-bold">Leads</h1>
         <p className="text-sm text-muted-foreground">Manage to your Leads</p>
       </div>
-      <SelectDemo />
+      <LeadsFilters />
+      <LeadsTable />
     </div>
   );
 }
