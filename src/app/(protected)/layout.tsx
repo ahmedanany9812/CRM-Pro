@@ -6,6 +6,7 @@ import AppSidebar from "@/components/sidebar/AppSidebar";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { QueryProvider } from "@/providers/queryProvider";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -40,10 +41,12 @@ export default async function DashboardLayout({
   return (
     <html lang="en">
       <body className={`${roboto.className} antialiased`}>
-        <SidebarProvider>
-          <AppSidebar profile={profile} role={profile.role} />
-          <main className="flex-1">{children}</main>
-        </SidebarProvider>
+        <QueryProvider>
+          <SidebarProvider>
+            <AppSidebar profile={profile} role={profile.role} />
+            <main className="flex-1">{children}</main>
+          </SidebarProvider>
+        </QueryProvider>
       </body>
     </html>
   );
