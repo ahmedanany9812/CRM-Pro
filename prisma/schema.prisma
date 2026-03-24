@@ -48,19 +48,6 @@ model Lead {
   updatedAt DateTime @updatedAt
 }
 
-enum LeadStatus {
-  OPEN
-  WON
-  LOST
-}
-
-enum LeadStage {
-  NEW
-  CONTACTED
-  QUALIFIED
-  NEGOTIATING
-}
-
 model Activity {
   id String @id @default(uuid())
 
@@ -93,4 +80,17 @@ enum Role {
   ADMIN
   MANAGER
   AGENT
+}
+
+enum LeadStatus {
+  OPEN
+  WON
+  LOST
+}
+
+enum LeadStage {
+  NEW
+  CONTACTED
+  QUALIFIED
+  NEGOTIATING
 }
