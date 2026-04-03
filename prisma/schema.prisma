@@ -60,6 +60,7 @@ model Activity {
   content String?
   type    ActivityType
 
+  metadata  Json?
   createdAt DateTime @default(now())
 }
 

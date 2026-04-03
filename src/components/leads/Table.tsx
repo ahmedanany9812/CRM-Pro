@@ -2,70 +2,16 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TableActions } from "./TableActions";
 import { Lead } from "@/generated/prisma/client";
 
-const leads: Lead[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+1234567890",
-    status: "OPEN",
-    stage: "NEW",
-    assignedToId: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    phone: "+1987654321",
-    status: "WON",
-    stage: "NEW",
-    assignedToId: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "3",
-    name: "Acme Corp",
-    email: "contact@acmecorp.com",
-    phone: "+1122334455",
-    status: "LOST",
-    stage: "QUALIFIED",
-    assignedToId: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "4",
-    name: "Michael Johnson",
-    email: "michael.j@example.com",
-    phone: "+1555666777",
-    status: "OPEN",
-    stage: "NEGOTIATING",
-    assignedToId: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "5",
-    name: "Sarah Williams",
-    email: "sarah.w@example.com",
-    phone: "+1999888777",
-    status: "WON",
-    stage: "CONTACTED",
-    assignedToId: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+interface LeadsTableProps {
+  leads: Lead[];
+}
 
 function formatEnum(value: string) {
   if (!value) return value;
@@ -101,49 +47,61 @@ const getStageColor = (stage: string) => {
   }
 };
 
-export function LeadsTable() {
+export function LeadsTable({ leads }: LeadsTableProps) {
   return (
-    <Table>
-      <TableHeader className="bg-gray-50">
-        <TableRow>
-          <TableHead className="text-muted-foreground">Name</TableHead>
-          <TableHead className="text-muted-foreground">Email</TableHead>
-          <TableHead className="text-muted-foreground">Phone</TableHead>
-          <TableHead className="text-center text-muted-foreground">
-            Status
-          </TableHead>
-          <TableHead className="text-center text-muted-foreground">
-            Stage
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {leads.map((lead) => (
-          <TableRow key={lead.id}>
-            <TableCell className="font-medium">{lead.name}</TableCell>
-            <TableCell className="text-muted-foreground">
-              {lead.email}
-            </TableCell>
-            <TableCell className="text-muted-foreground">
-              {lead.phone}
-            </TableCell>
-            <TableCell align="center">
-              <p
-                className={`p-0.5 font-medium text-sm text-center rounded-sm ${getStatusColor(lead.status)}`}
-              >
-                {formatEnum(lead.status)}
-              </p>
-            </TableCell>
-            <TableCell align="center">
-              <p
-                className={`p-1 font-medium text-sm text-center rounded-sm ${getStageColor(lead.stage)}`}
-              >
-                {formatEnum(lead.stage)}
-              </p>
-            </TableCell>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader className="bg-gray-50 dark:bg-zinc-900/50">
+          <TableRow>
+            <TableHead className="font-semibold">Name</TableHead>
+            <TableHead className="font-semibold">Email</TableHead>
+            <TableHead className="font-semibold">Phone</TableHead>
+            <TableHead className="text-center font-semibold">Status</TableHead>
+            <TableHead className="text-center font-semibold">Stage</TableHead>
+            <TableHead className="w-[100px] text-right font-semibold">
+              Actions
+            </TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {leads.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center">
+                No leads found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            leads.map((lead) => (
+              <TableRow key={lead.id}>
+                <TableCell className="font-medium">{lead.name}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {lead.email}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {lead.phone}
+                </TableCell>
+                <TableCell>
+                  <div
+                    className={`mx-auto w-fit rounded-md px-2 py-0.5 text-xs font-semibold ${getStatusColor(lead.status)}`}
+                  >
+                    {formatEnum(lead.status)}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div
+                    className={`mx-auto w-fit rounded-md px-2 py-0.5 text-xs font-semibold ${getStageColor(lead.stage)}`}
+                  >
+                    {formatEnum(lead.stage)}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <TableActions id={lead.id} />
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
