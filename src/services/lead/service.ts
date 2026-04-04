@@ -68,11 +68,22 @@ export async function updateLead(profile: Profile, id: string, data: EditLeadReq
     throw new Error("Access denied: You can only update leads assigned to you");
   }
 
+  let newAssigneeName: string | undefined;
+  if (data.assignedToId && data.assignedToId !== existingLead.assignedToId) {
+    const newAssignee = await prisma.profile.findUnique({
+      where: { id: data.assignedToId },
+      select: { name: true },
+    });
+    newAssigneeName = newAssignee?.name;
+  }
+
   const activities = buildLeadChangeActivities({
     leadId: id,
     actorId: profile.id,
     existingLead,
     newLead: data,
+    oldAssigneeName: (existingLead as any).assignedTo?.name,
+    newAssigneeName,
   });
 
   return await prisma.$transaction(async (tx) => {

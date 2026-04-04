@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { LogCallDialog } from "./LogCallDialog";
+import { AddNoteDialog } from "./AddNoteDialog";
 import { ActivitySummaryItem } from "@/services/activity/schema";
 
 const activityIcons: Record<ActivityType, any> = {
@@ -59,6 +60,7 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
   const [page, setPage] = useState(1);
   const [noteContent, setNoteContent] = useState("");
   const [isLogCallOpen, setIsLogCallOpen] = useState(false);
+  const [isAddNoteOpen, setIsAddNoteOpen] = useState(false);
   const pageSize = 10;
 
   const { data, isLoading, isError } = useGetLeadActivities({
@@ -94,24 +96,24 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Phone className="h-4 w-4" />
           </div>
-          <div className="flex flex-col items-start">
-            <span className="text-sm font-semibold">Log Call Attempt</span>
+          <div className="flex flex-col items-start translate-y-[-2px]">
+            <span className="text-sm font-semibold text-foreground">Log Call Attempt</span>
             <span className="text-xs">Record the outcome of a call</span>
           </div>
         </Button>
-        <div className="flex h-14 items-center justify-start gap-3 rounded-md border border-dashed px-4 text-muted-foreground">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-            <MessageSquare className="h-4 w-4" />
+        <Button
+          variant="outline"
+          className="h-14 justify-start gap-3 border-dashed px-4 text-muted-foreground hover:text-foreground"
+          onClick={() => setIsAddNoteOpen(true)}
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Pencil className="h-4 w-4" />
           </div>
-          <div className="flex flex-col items-start translate-y-[2px]">
-            <span className="text-sm font-semibold leading-none">
-              Add Activity
-            </span>
-            <span className="text-xs leading-none mt-1">
-              Other activity types coming soon
-            </span>
+          <div className="flex flex-col items-start text-left translate-y-[-2px]">
+            <span className="text-sm font-semibold text-foreground">Add Note</span>
+            <span className="text-xs">Add a private note to this lead</span>
           </div>
-        </div>
+        </Button>
       </div>
 
       {/* Note Input */}
@@ -221,6 +223,11 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
       <LogCallDialog
         open={isLogCallOpen}
         onOpenChange={setIsLogCallOpen}
+        leadId={leadId}
+      />
+      <AddNoteDialog
+        open={isAddNoteOpen}
+        onOpenChange={setIsAddNoteOpen}
         leadId={leadId}
       />
     </div>

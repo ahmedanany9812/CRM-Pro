@@ -5,8 +5,10 @@ import { CreateActivityRequest } from "@/services/activity";
 interface BuildLeadChangeActivitiesParams {
   leadId: string;
   actorId: string;
-  existingLead: Lead;
+  existingLead: any; // Allow for extended lead with relations
   newLead: Partial<Lead>;
+  oldAssigneeName?: string;
+  newAssigneeName?: string;
 }
 
 export function buildLeadChangeActivities({
@@ -14,6 +16,8 @@ export function buildLeadChangeActivities({
   actorId,
   existingLead,
   newLead,
+  oldAssigneeName,
+  newAssigneeName,
 }: BuildLeadChangeActivitiesParams) {
   const activities: CreateActivityRequest[] = [];
 
@@ -48,8 +52,8 @@ export function buildLeadChangeActivities({
       actorId,
       type: ActivityType.ASSIGNMENT_CHANGE,
       meta: {
-        from: existingLead.assignedToId || "Unassigned",
-        to: newLead.assignedToId || "Unassigned",
+        from: oldAssigneeName || existingLead.assignedTo?.name || "Unassigned",
+        to: newAssigneeName || "Unassigned",
       },
     });
   }

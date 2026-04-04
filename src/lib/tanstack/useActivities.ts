@@ -33,7 +33,7 @@ export function useCreateNote(leadId: string) {
   
   return useMutation({
     mutationFn: (data: CreateNoteRequest) => 
-      apiClient(`leads/${leadId}/activities`, {
+      apiClient<{ success: boolean; data: any }>(`leads/${leadId}/activities/note`, {
         method: "POST",
         body: JSON.stringify(data),
       }),
@@ -52,7 +52,7 @@ export function useLogCallAttempt(leadId: string) {
   
   return useMutation({
     mutationFn: (data: CreateCallAttemptRequest) => 
-      apiClient(`leads/${leadId}/activities/call-attempt`, {
+      apiClient<{ success: boolean; data: any }>(`leads/${leadId}/activities/call-attempt`, {
         method: "POST",
         body: JSON.stringify(data),
       }),

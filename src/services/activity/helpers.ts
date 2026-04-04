@@ -2,16 +2,19 @@ import { ActivityType } from "@/generated/prisma/enums";
 
 export function buildActivityContent(
   activityType: ActivityType,
-  meta:
-    | {
-        from: unknown;
-        to: unknown;
-      }
-    | undefined
+  meta: { from: unknown; to: unknown } | undefined,
+  content?: string
 ) {
-  if (!meta) {
-    return null;
+  // Notes and call attempts pass content directly
+  if (
+    activityType === ActivityType.NOTE ||
+    activityType === ActivityType.CALL_ATTEMPT
+  ) {
+    return content ?? null;
   }
+
+  // Change activities use meta to build content
+  if (!meta) return null;
 
   switch (activityType) {
     case ActivityType.STATUS_CHANGE:
@@ -20,9 +23,6 @@ export function buildActivityContent(
       return `Stage changed from ${meta.from} to ${meta.to}`;
     case ActivityType.ASSIGNMENT_CHANGE:
       return `Assignment changed from ${meta.from || "None"} to ${meta.to || "None"}`;
-    case ActivityType.NOTE:
-    case ActivityType.CALL_ATTEMPT:
-      return meta.to as string;
     default:
       return null;
   }

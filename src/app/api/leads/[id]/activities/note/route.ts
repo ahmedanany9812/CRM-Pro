@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authenticateUser } from "@/utils/authenticateUser";
 import { handleRouteError } from "@/utils/handleRouteError";
 import { ActivityService } from "@/services/activity";
-import { createCallAttemptSchema } from "@/services/activity/schema";
+import { createNoteSchema } from "@/services/activity/schema";
 import { ActivityType } from "@/generated/prisma/enums";
 
 export async function POST(
@@ -14,24 +14,20 @@ export async function POST(
     const profile = await authenticateUser();
     const body = await request.json();
 
-    const validated = createCallAttemptSchema.parse(body);
-
-    const content = validated.notes
-      ? `${validated.outcome} — ${validated.notes}`
-      : validated.outcome;
+    const validated = createNoteSchema.parse(body);
 
     const result = await ActivityService.create([{
       leadId: id,
       actorId: profile.id,
-      type: ActivityType.CALL_ATTEMPT,
-      content,
+      type: ActivityType.NOTE,
+      content: validated.content,
     }]);
 
     if (!result.success) {
       return NextResponse.json({ success: false, errors: result.errors }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, count: result.count });
+    return NextResponse.json({ success: true, count: result.count, data: result });
   } catch (error) {
     return handleRouteError(error);
   }

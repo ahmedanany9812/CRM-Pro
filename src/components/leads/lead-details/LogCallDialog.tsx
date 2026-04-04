@@ -109,7 +109,7 @@ export const LogCallDialog = ({ open, onOpenChange, leadId }: LogCallDialogProps
             {logCallMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Log Visit
+            Log Call
           </Button>
         </DialogFooter>
       </DialogContent>

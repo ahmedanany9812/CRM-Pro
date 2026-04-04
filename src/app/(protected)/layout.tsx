@@ -9,6 +9,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { QueryProvider } from "@/providers/queryProvider";
+import { NotificationBell } from "@/components/NotificationBell";
+import { Toaster } from "@/components/ui/toaster";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -58,6 +60,9 @@ export default async function DashboardLayout({
                       <span className="capitalize text-foreground/80">{profile.role.toLowerCase()} Dashboard</span>
                     </div>
                   </div>
+                  <div className="flex items-center gap-4 px-4">
+                    <NotificationBell />
+                  </div>
                 </header>
                 <div className="flex flex-1 flex-col overflow-hidden">
                   {children}
@@ -65,6 +70,7 @@ export default async function DashboardLayout({
               </SidebarInset>
             </SidebarProvider>
           </TooltipProvider>
+          <Toaster />
         </QueryProvider>
       </body>
     </html>

@@ -1,22 +1,44 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useGetLead } from "@/lib/tanstack/useLeads";
+import { useGetLead, useEditLead } from "@/lib/tanstack/useLeads";
+import { useGetUsers } from "@/lib/tanstack/useUsers";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, ArrowLeft, Mail, Phone, Calendar, User, Edit2 } from "lucide-react";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Loader2, ArrowLeft, Mail, Phone, Calendar, User, Edit2, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { EditLeadDialog } from "@/components/leads/EditLeadDialog";
 import { Timeline } from "@/components/leads/lead-details/Timeline";
+import { LeadReminders } from "@/components/leads/lead-details/LeadReminders";
 
 export default function LeadDetailPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { data: lead, isLoading, isError } = useGetLead(id);
+  const { data: users } = useGetUsers();
+  const editLeadMutation = useEditLead(id);
+
+  const handleAssignmentChange = async (userId: string) => {
+    try {
+      await editLeadMutation.mutateAsync({
+        assignedToId: userId === "unassigned" ? null : userId
+      });
+    } catch (error) {
+      console.error("Failed to update lead assignment:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -107,7 +129,38 @@ export default function LeadDetailPage() {
               <TabsTrigger value="files">Files</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="overview" className="mt-6 space-y-4">
+            <TabsContent value="overview" className="mt-6 space-y-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xl font-bold">Assignment</CardTitle>
+                  <UserPlus className="h-5 w-5 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="assignee" className="text-sm font-medium">Assigned Counselor</Label>
+                      <Select 
+                        value={lead.assignedToId || "unassigned"} 
+                        onValueChange={handleAssignmentChange}
+                        disabled={editLeadMutation.isPending}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select counselor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="unassigned">Unassigned</SelectItem>
+                          {users?.map((user: any) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle>Lead Overview</CardTitle>
@@ -140,15 +193,7 @@ export default function LeadDetailPage() {
             </TabsContent>
 
             <TabsContent value="reminders" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Reminders</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center py-12">
-                   <p className="text-muted-foreground text-sm">No active reminders for this lead.</p>
-                   <Button variant="link">Add a reminder</Button>
-                </CardContent>
-              </Card>
+              <LeadReminders leadId={id} />
             </TabsContent>
 
             <TabsContent value="files" className="mt-6">

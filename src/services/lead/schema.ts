@@ -27,3 +27,9 @@ export const editLeadSchema = z.object({
 });
 
 export type EditLeadRequest = z.infer<typeof editLeadSchema>;
+
+export const leadIdParamsSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export type LeadIdParams = z.infer<typeof leadIdParamsSchema>;

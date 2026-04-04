@@ -57,6 +57,25 @@ export async function dbUpdateLead(
 export async function dbGetLeadById(id: string) {
   return prisma.lead.findUnique({
     where: { id },
+    include: {
+      assignedTo: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      reminders: {
+        orderBy: {
+          dueAt: "asc",
+        },
+      },
+      notifications: {
+        take: 5,
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
   });
 }
 

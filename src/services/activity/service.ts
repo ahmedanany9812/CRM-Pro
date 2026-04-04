@@ -27,8 +27,8 @@ export async function createActivities(
   }
 
   const activitiesToCreate: Prisma.ActivityCreateManyInput[] = [];
-  for (const activity of validated.data) {
-    const content = buildActivityContent(activity.type, activity.meta as any);
+  for (const activity of (validated.data as any)) {
+    const content = buildActivityContent(activity.type, activity.meta as any, activity.content);
     activitiesToCreate.push({
       leadId: activity.leadId,
       actorId: activity.actorId,

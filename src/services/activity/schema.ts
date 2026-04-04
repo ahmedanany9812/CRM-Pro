@@ -15,6 +15,7 @@ export const createActivitySchema = z
         to: z.unknown(),
       })
       .optional(),
+    content: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (
