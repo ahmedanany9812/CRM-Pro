@@ -30,13 +30,13 @@ export default function SideFooter({ profile }: { profile: Profile }) {
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <div className="grid flex-1 text-left text-sm leading-tight">
+          <div className="grid flex-1 text-left text-sm leading-tight group-data-[state=collapsed]:hidden transition-all duration-200">
             <span className="truncate font-sm">{profile.name}</span>
             <span className="truncate text-xs text-muted-foreground">
               {profile.email}
             </span>
           </div>
-          <LogOut className="text-muted-foreground" />
+          <LogOut className="text-muted-foreground group-data-[state=collapsed]:hidden transition-all duration-200" />
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

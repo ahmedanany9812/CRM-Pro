@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -73,7 +74,14 @@ export function LeadsTable({ leads }: LeadsTableProps) {
           ) : (
             leads.map((lead) => (
               <TableRow key={lead.id}>
-                <TableCell className="font-medium">{lead.name}</TableCell>
+                <TableCell className="font-medium">
+                  <Link
+                    href={`/leads/${lead.id}`}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    {lead.name}
+                  </Link>
+                </TableCell>
                 <TableCell className="text-muted-foreground">
                   {lead.email}
                 </TableCell>

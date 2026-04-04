@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, LayoutDashboard, User, Users } from "lucide-react";
+import { Calendar, LayoutDashboard, User, Users, Zap } from "lucide-react";
 import { Separator } from "../ui/separator";
 import {
   Sidebar,
@@ -40,12 +40,19 @@ export default function AppSidebar({
   };
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="p-2">
-          <div className="flex items-start flex-col gap-1">
-            <span className="text-lg font-semibold">Whispyr</span>
-            <span className="text-muted-foreground text-sm">{role}</span>
+        <div className="flex items-center gap-2 px-2 py-4 transition-all duration-200 group-data-[state=collapsed]:px-0 group-data-[state=collapsed]:justify-center">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shrink-0 shadow-sm">
+            <Zap className="size-5 fill-current" />
+          </div>
+          <div className="flex flex-col gap-0.5 leading-none transition-all duration-200 group-data-[state=collapsed]:hidden overflow-hidden">
+            <span className="text-lg font-bold tracking-tight truncate">
+              Whispyr
+            </span>
+            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest truncate">
+              {role}
+            </span>
           </div>
         </div>
       </SidebarHeader>
@@ -59,10 +66,16 @@ export default function AppSidebar({
             <SidebarMenu className="space-y-3">
               {mainSidebarItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={isActive(item.href)}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive(item.href)}
+                    tooltip={item.label}
+                  >
                     <Link href={item.href}>
                       <item.icon className="size-4" />
-                      <span>{item.label}</span>
+                      <span className="group-data-[state=collapsed]:hidden ml-1 transition-all duration-200">
+                        {item.label}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -79,10 +92,16 @@ export default function AppSidebar({
               <SidebarMenu className="space-y-3">
                 {adminSidebarItems.map((item) => (
                   <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={isActive(item.href)}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive(item.href)}
+                      tooltip={item.label}
+                    >
                       <Link href={item.href}>
                         <item.icon className="size-4" />
-                        <span>{item.label}</span>
+                        <span className="group-data-[state=collapsed]:hidden ml-1 transition-all duration-200">
+                          {item.label}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

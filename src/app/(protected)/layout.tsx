@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "../globals.css";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 import AppSidebar from "@/components/sidebar/AppSidebar";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -42,10 +44,27 @@ export default async function DashboardLayout({
     <html lang="en">
       <body className={`${roboto.className} antialiased`}>
         <QueryProvider>
-          <SidebarProvider>
-            <AppSidebar profile={profile} role={profile.role} />
-            <main className="flex-1">{children}</main>
-          </SidebarProvider>
+          <TooltipProvider>
+            <SidebarProvider>
+              <AppSidebar profile={profile} role={profile.role} />
+              <SidebarInset>
+                <header className="flex h-14 shrink-0 items-center justify-between px-4 border-b bg-background/50 backdrop-blur-md sticky top-0 z-10 transition-all duration-200">
+                  <div className="flex items-center gap-2">
+                    <SidebarTrigger />
+                    <Separator orientation="vertical" className="h-6 mx-2" />
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <span className="text-muted-foreground/60">Whispyr CRM</span>
+                      <span className="text-muted-foreground/30">/</span>
+                      <span className="capitalize text-foreground/80">{profile.role.toLowerCase()} Dashboard</span>
+                    </div>
+                  </div>
+                </header>
+                <div className="flex flex-1 flex-col overflow-hidden">
+                  {children}
+                </div>
+              </SidebarInset>
+            </SidebarProvider>
+          </TooltipProvider>
         </QueryProvider>
       </body>
     </html>

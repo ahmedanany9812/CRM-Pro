@@ -6,12 +6,9 @@ import {
   dbGetLeadById, 
   dbDeleteLead 
 } from "./db";
-import { 
-  ListLeadsParams, 
-  CreateLeadRequest, 
-  EditLeadRequest 
-} from "./schema";
+import { ListLeadsParams, CreateLeadRequest, EditLeadRequest } from "./schema";
 import { Prisma, Profile } from "@/generated/prisma/client";
+import { ActivityType } from "@/generated/prisma/enums";
 
 /**
  * Service layer for Leads.
@@ -31,8 +28,17 @@ export async function listLeads(profile: Profile, params: ListLeadsParams) {
 }
 
 export async function createLead(profile: Profile, data: CreateLeadRequest) {
-  // Business Rule: Authorization is handled at the route level (Admin/Manager).
-  return dbCreateLead(profile.id, data);
+  return await prisma.$transaction(async (tx) => {
+    const lead = await dbCreateLead(profile.id, data, tx);
+
+    await ActivityService.create([{
+      leadId: lead.id,
+      actorId: profile.id,
+      type: ActivityType.LEAD_CREATED,
+    }], tx);
+
+    return lead;
+  });
 }
 
 export async function getLead(profile: Profile, id: string) {
@@ -48,17 +54,39 @@ export async function getLead(profile: Profile, id: string) {
   return lead;
 }
 
-export async function updateLead(profile: Profile, id: string, data: EditLeadRequest) {
-  const lead = await dbGetLeadById(id);
+import { ActivityService } from "@/services/activity";
+import { buildLeadChangeActivities } from "./helpers";
+import { prisma } from "@/lib/prisma";
 
-  if (!lead) throw new Error("Lead not found");
+export async function updateLead(profile: Profile, id: string, data: EditLeadRequest) {
+  const existingLead = await dbGetLeadById(id);
+
+  if (!existingLead) throw new Error("Lead not found");
 
   // Scoping: Agents can only update leads assigned to them.
-  if (profile.role === Role.AGENT && lead.assignedToId !== profile.id) {
+  if (profile.role === Role.AGENT && existingLead.assignedToId !== profile.id) {
     throw new Error("Access denied: You can only update leads assigned to you");
   }
 
-  return dbUpdateLead(id, profile.id, data);
+  const activities = buildLeadChangeActivities({
+    leadId: id,
+    actorId: profile.id,
+    existingLead,
+    newLead: data,
+  });
+
+  return await prisma.$transaction(async (tx) => {
+    const updatedLead = await dbUpdateLead(id, profile.id, data, tx);
+    
+    if (activities.length > 0) {
+      const activitiesCreated = await ActivityService.create(activities, tx);
+      if (!activitiesCreated.success) {
+        throw new Error("Failed to create activities");
+      }
+    }
+
+    return updatedLead;
+  });
 }
 
 export async function deleteLead(profile: Profile, id: string) {

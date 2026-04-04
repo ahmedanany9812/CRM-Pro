@@ -129,4 +129,13 @@
   html {
     @apply font-sans;
   }
+  button, 
+  [role="button"],
+  a {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role="button"]:disabled {
+    cursor: not-allowed;
+  }
 }

@@ -10,6 +10,7 @@ import { Loader2, ArrowLeft, Mail, Phone, Calendar, User, Edit2 } from "lucide-r
 import Link from "next/link";
 import { useState } from "react";
 import { EditLeadDialog } from "@/components/leads/EditLeadDialog";
+import { Timeline } from "@/components/leads/lead-details/Timeline";
 
 export default function LeadDetailPage() {
   const { id } = useParams() as { id: string };
@@ -121,14 +122,19 @@ export default function LeadDetailPage() {
             </TabsContent>
 
             <TabsContent value="timeline" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Activity Timeline</CardTitle>
+              <Card className="border shadow-sm overflow-hidden">
+                <CardHeader className="bg-muted/50 border-b pb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl font-bold">Activity Log</CardTitle>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Track every interaction and status change for {lead.name}.
+                      </p>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground italic">
-                    Timeline feature coming in Session 3. This will show all status changes, notes, and interactions.
-                  </p>
+                <CardContent className="pt-6">
+                  <Timeline leadId={id} />
                 </CardContent>
               </Card>
             </TabsContent>
