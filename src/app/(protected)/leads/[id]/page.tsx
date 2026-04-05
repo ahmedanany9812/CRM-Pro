@@ -21,6 +21,7 @@ import { useState } from "react";
 import { EditLeadDialog } from "@/components/leads/EditLeadDialog";
 import { Timeline } from "@/components/leads/lead-details/Timeline";
 import { LeadReminders } from "@/components/leads/lead-details/LeadReminders";
+import { AI } from "@/components/leads/lead-details/AI";
 
 export default function LeadDetailPage() {
   const { id } = useParams() as { id: string };
@@ -122,10 +123,11 @@ export default function LeadDetailPage() {
         {/* Right Column: Tabs */}
         <div className="lg:col-span-2">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="reminders">Reminders</TabsTrigger>
+              <TabsTrigger value="ai">AI Insights</TabsTrigger>
               <TabsTrigger value="files">Files</TabsTrigger>
             </TabsList>
             
@@ -203,6 +205,17 @@ export default function LeadDetailPage() {
                 </CardHeader>
                 <CardContent className="text-center py-12">
                    <p className="text-muted-foreground text-sm">No files uploaded yet.</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="ai" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI Sales Assistant</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AI leadId={id} />
                 </CardContent>
               </Card>
             </TabsContent>
