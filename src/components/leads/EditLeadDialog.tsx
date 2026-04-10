@@ -50,11 +50,11 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
     resolver: zodResolver(editLeadSchema),
     defaultValues: {
       name: lead.name,
-      email: lead.email,
+      email: lead.email ?? undefined,
       phone: lead.phone,
       status: lead.status as LeadStatus,
       stage: lead.stage as LeadStage,
-      assignedToId: lead.assignedToId,
+      assignedToId: lead.assignedToId ?? undefined,
     },
   });
 

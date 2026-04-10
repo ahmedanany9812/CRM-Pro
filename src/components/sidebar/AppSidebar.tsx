@@ -33,10 +33,14 @@ export default function AppSidebar({
     { label: "Reminders", href: "/reminders", icon: Calendar },
   ];
 
-  const adminSidebarItems = [{ label: "Users", href: "/users", icon: User }];
+  const adminSidebarItems = [
+    { label: "Users", href: "/admin/users", icon: User },
+    { label: "Import", href: "/admin/import", icon: Users },
+  ];
 
   const isActive = (href: string) => {
-    return pathname === href;
+    if (href === "/" && pathname !== "/") return false;
+    return pathname.startsWith(href);
   };
 
   return (
