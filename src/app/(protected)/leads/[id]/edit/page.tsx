@@ -28,7 +28,7 @@ export default async function EditLeadPage({
         <h1 className="text-3xl font-bold">Edit Lead</h1>
         <p className="text-sm text-muted-foreground">Update lead details for {lead.name}</p>
       </div>
-      <LeadForm initialData={lead} isEdit />
+      <LeadForm initialData={{ ...lead, email: lead.email ?? "" }} isEdit />
     </div>
   );
 }

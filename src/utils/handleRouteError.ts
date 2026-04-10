@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { AuthenticationError } from "./authenticateUser";
+import { AdminServiceError } from "@/services/admin";
 
 export function handleRouteError(error: any) {
-  if (error instanceof AuthenticationError) {
+  if (error instanceof AuthenticationError || error instanceof AdminServiceError) {
     return NextResponse.json({ success: false, error: error.message }, { status: error.statusCode });
   }
   
-  if (error.name === "ZodError") {
+  if (error.name === "ZodError" || error.constructor.name === "ZodError") {
     return NextResponse.json({ success: false, error: error.flatten().fieldErrors }, { status: 400 });
   }
 

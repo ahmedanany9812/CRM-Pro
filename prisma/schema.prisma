@@ -37,7 +37,7 @@ model Lead {
 
   name  String
   phone String
-  email String
+  email String?
 
   stage  LeadStage  @default(NEW)
   status LeadStatus @default(OPEN)

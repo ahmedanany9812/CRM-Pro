@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       pageSize: searchParams.get("pageSize") || undefined,
       status: searchParams.get("status") || undefined,
       leadId: searchParams.get("leadId") || undefined,
-      overdue: searchParams.get("overdue") === "true",
+      overdue: searchParams.has("overdue") ? searchParams.get("overdue") === "true" : undefined,
     });
 
     const data = await ReminderService.listMy(profile, query);

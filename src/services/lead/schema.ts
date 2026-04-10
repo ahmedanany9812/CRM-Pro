@@ -10,7 +10,7 @@ export type ListLeadsParams = z.infer<typeof listLeadsQuerySchema>;
 
 export const createLeadSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email address").optional(),
   phone: z.string().min(5, "Phone number must be at least 5 characters"),
   note: z.string().optional(),
 });

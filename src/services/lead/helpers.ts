@@ -5,8 +5,8 @@ import { CreateActivityRequest } from "@/services/activity";
 interface BuildLeadChangeActivitiesParams {
   leadId: string;
   actorId: string;
-  existingLead: any; // Allow for extended lead with relations
-  newLead: Partial<Lead>;
+  existingLead: any; 
+  newLead: any;
   oldAssigneeName?: string;
   newAssigneeName?: string;
 }
