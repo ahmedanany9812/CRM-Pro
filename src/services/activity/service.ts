@@ -1,4 +1,5 @@
-import { Prisma } from "@/generated/prisma/client";
+import { Prisma, Profile } from "@/generated/prisma/client";
+import { prisma } from "@/lib/prisma";
 import { Role } from "@/generated/prisma/enums";
 import { dbCreateActivities, dbGetLeadActivities } from "./db";
 import { 
@@ -8,11 +9,7 @@ import {
 } from "./schema";
 import { buildActivityContent } from "./helpers";
 import { buildPagination } from "@/lib/pagination";
-
-export type UserSnapshot = {
-  id: string;
-  role: Role;
-};
+import { UserSnapshot } from "@/utils/authenticateUser";
 
 export async function createActivities(
   request: CreateActivityRequest[],
@@ -69,4 +66,26 @@ export async function getLeadActivities(
     activities: result.activities,
     pagination: buildPagination(result.total, request.page, request.pageSize),
   };
+}
+
+/**
+ * Creates an AI-related activity in the timeline.
+ */
+export async function createAIActivity(
+  request: {
+    type: any;
+    leadId: string;
+    actorId: string;
+    content: string;
+  },
+  tx?: Prisma.TransactionClient
+) {
+  return await prisma.activity.create({
+    data: {
+      type: request.type,
+      leadId: request.leadId,
+      actorId: request.actorId,
+      content: request.content,
+    },
+  });
 }

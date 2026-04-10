@@ -3,6 +3,11 @@ import { createClient as createSupabaseServerClient } from "@/lib/supabase/serve
 import { Role } from "@/generated/prisma/enums";
 import { Profile } from "@/generated/prisma/client";
 
+export type UserSnapshot = {
+  id: string;
+  role: Role;
+};
+
 export class AuthenticationError extends Error {
   constructor(
     message: string,
