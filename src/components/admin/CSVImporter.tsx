@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { parseCSV, validateRows, generateTemplateCSV } from "@/services/import-export/helpers";
+import {
+  parseCSV,
+  validateRows,
+  generateTemplateCSV,
+} from "@/services/import-export/helpers";
 import { RowValidationResult } from "@/services/import-export/schema";
 import { useImport } from "@/lib/tanstack/useImportExport";
 import { Button } from "@/components/ui/button";
-import { 
-  FileUp, 
-  Download, 
-  AlertCircle, 
-  CheckCircle2, 
-  Loader2, 
-  Trash2, 
-  ArrowRight
+import {
+  FileUp,
+  Download,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Trash2,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -51,14 +55,19 @@ export function CSVImporter() {
       setResults(validationResults);
       setState("validated");
 
-      const validCount = validationResults.filter((r: RowValidationResult) => r.valid).length;
-      const invalidCount = validationResults.filter((r: RowValidationResult) => !r.valid).length;
-      
-      // Task 2 spec: Expanded by default if validCount <= 50
+      const validCount = validationResults.filter(
+        (r: RowValidationResult) => r.valid,
+      ).length;
+      const invalidCount = validationResults.filter(
+        (r: RowValidationResult) => !r.valid,
+      ).length;
+
       setShowPreview(validCount <= 50);
 
       if (invalidCount > 0) {
-        toast.warning(`Parsed ${validationResults.length} rows: ${validCount} valid, ${invalidCount} invalid`);
+        toast.warning(
+          `Parsed ${validationResults.length} rows: ${validCount} valid, ${invalidCount} invalid`,
+        );
       } else {
         toast.success(`Successfully parsed ${validationResults.length} rows`);
       }
@@ -67,7 +76,6 @@ export function CSVImporter() {
       setState("idle");
     }
 
-    // Reset input so same file can be re-selected if fixed
     e.target.value = "";
   };
 
@@ -85,8 +93,10 @@ export function CSVImporter() {
     try {
       const data = await importMutation.mutateAsync({ rows: validRows });
       toast.success(
-        `Imported ${data.importedCount} rows successfully!` + 
-        (data.errors.length > 0 ? ` Encountered ${data.errors.length} errors.` : "")
+        `Imported ${data.importedCount} rows successfully!` +
+          (data.errors.length > 0
+            ? ` Encountered ${data.errors.length} errors.`
+            : ""),
       );
       setResults([]);
       setState("idle");
@@ -121,7 +131,12 @@ export function CSVImporter() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold">Step 1: Upload Your CSV</h2>
-        <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDownloadTemplate}
+          className="gap-2"
+        >
           <Download className="h-4 w-4" />
           Download Template
         </Button>
@@ -131,7 +146,8 @@ export function CSVImporter() {
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed bg-muted/30 p-12 transition-colors hover:bg-muted/50">
           <FileUp className="mb-4 h-12 w-12 text-muted-foreground" />
           <p className="mb-4 text-center text-sm text-muted-foreground">
-            Click the button below to select your lead spreadsheet.<br />
+            Click the button below to select your lead spreadsheet.
+            <br />
             Supported format: .csv
           </p>
           <div className="relative">
@@ -149,7 +165,9 @@ export function CSVImporter() {
       {state === "parsing" && (
         <div className="flex flex-col items-center justify-center rounded-xl border bg-muted/30 p-12">
           <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm font-medium">Parsing and validating your file...</p>
+          <p className="text-sm font-medium">
+            Parsing and validating your file...
+          </p>
         </div>
       )}
 
@@ -162,29 +180,46 @@ export function CSVImporter() {
                 <h3 className="font-semibold text-lg">Ready to Import</h3>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
-                These {validCount} rows match our format exactly and will be added to the CRM.
+                These {validCount} rows match our format exactly and will be
+                added to the CRM.
               </p>
               <div className="flex items-center gap-2">
-                <span className="text-3xl font-bold text-green-600">{validCount}</span>
-                <span className="text-sm text-muted-foreground">Lead candidates</span>
+                <span className="text-3xl font-bold text-green-600">
+                  {validCount}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Lead candidates
+                </span>
               </div>
             </div>
 
-            <div className={`flex flex-col justify-between rounded-xl border p-6 ${invalidResults.length > 0 ? "bg-amber-500/5 border-amber-500/20" : "bg-muted/50 border-muted"}`}>
-              <div className={`flex items-center gap-3 mb-2 ${invalidResults.length > 0 ? "text-amber-600" : "text-muted-foreground"}`}>
+            <div
+              className={`flex flex-col justify-between rounded-xl border p-6 ${invalidResults.length > 0 ? "bg-amber-500/5 border-amber-500/20" : "bg-muted/50 border-muted"}`}
+            >
+              <div
+                className={`flex items-center gap-3 mb-2 ${invalidResults.length > 0 ? "text-amber-600" : "text-muted-foreground"}`}
+              >
                 <AlertCircle className="h-5 w-5" />
-                <h3 className="font-semibold text-lg">{invalidResults.length > 0 ? "Formatting Errors" : "No Errors"}</h3>
+                <h3 className="font-semibold text-lg">
+                  {invalidResults.length > 0
+                    ? "Formatting Errors"
+                    : "No Errors"}
+                </h3>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
-                {invalidResults.length > 0 
+                {invalidResults.length > 0
                   ? `${invalidResults.length} rows have issues and will be skipped. Review the list below.`
                   : "Every row in your file is perfectly formatted! Zero issues detected."}
               </p>
               <div className="flex items-center gap-2">
-                <span className={`text-3xl font-bold ${invalidResults.length > 0 ? "text-amber-600" : "text-muted-foreground"}`}>
+                <span
+                  className={`text-3xl font-bold ${invalidResults.length > 0 ? "text-amber-600" : "text-muted-foreground"}`}
+                >
                   {invalidResults.length}
                 </span>
-                <span className="text-sm text-muted-foreground font-medium">Validation errors</span>
+                <span className="text-sm text-muted-foreground font-medium">
+                  Validation errors
+                </span>
               </div>
             </div>
           </div>
@@ -199,8 +234,17 @@ export function CSVImporter() {
                 Preview {validCount} Valid Leads
               </h3>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-green-600 border-green-200">Ready</Badge>
-                {showPreview ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                <Badge
+                  variant="outline"
+                  className="text-green-600 border-green-200"
+                >
+                  Ready
+                </Badge>
+                {showPreview ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
               </div>
             </button>
             {showPreview && (
@@ -221,7 +265,9 @@ export function CSVImporter() {
                       .slice(0, 10)
                       .map((res) => (
                         <TableRow key={res.rowNumber}>
-                          <TableCell className="font-medium">#{res.rowNumber}</TableCell>
+                          <TableCell className="font-medium">
+                            #{res.rowNumber}
+                          </TableCell>
                           <TableCell>{res.data?.phone}</TableCell>
                           <TableCell>{res.data?.name}</TableCell>
                           <TableCell>{res.data?.email}</TableCell>
@@ -232,7 +278,10 @@ export function CSVImporter() {
                       ))}
                     {validCount > 10 && (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-4 bg-muted/20 text-muted-foreground text-xs italic">
+                        <TableCell
+                          colSpan={5}
+                          className="text-center py-4 bg-muted/20 text-muted-foreground text-xs italic"
+                        >
                           Showing first 10 of {validCount} valid rows...
                         </TableCell>
                       </TableRow>
@@ -262,15 +311,21 @@ export function CSVImporter() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {invalidResults.map((res) => (
+                    {invalidResults.map((res) =>
                       Object.entries(res.errors || {}).map(([field, msgs]) => (
                         <TableRow key={`${res.rowNumber}-${field}`}>
-                          <TableCell className="font-medium">#{res.rowNumber}</TableCell>
-                          <TableCell className="capitalize font-semibold text-amber-600">{field}</TableCell>
-                          <TableCell className="text-muted-foreground">{msgs.join(", ")}</TableCell>
+                          <TableCell className="font-medium">
+                            #{res.rowNumber}
+                          </TableCell>
+                          <TableCell className="capitalize font-semibold text-amber-600">
+                            {field}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {msgs.join(", ")}
+                          </TableCell>
                         </TableRow>
-                      ))
-                    ))}
+                      )),
+                    )}
                   </TableBody>
                 </Table>
               </ScrollArea>
@@ -278,13 +333,18 @@ export function CSVImporter() {
           )}
 
           <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t">
-            <Button variant="ghost" onClick={reset} disabled={state === "importing"} className="gap-2">
+            <Button
+              variant="ghost"
+              onClick={reset}
+              disabled={state === "importing"}
+              className="gap-2"
+            >
               <Trash2 className="h-4 w-4" />
               Discard File
             </Button>
-            <Button 
-              size="lg" 
-              onClick={handleImport} 
+            <Button
+              size="lg"
+              onClick={handleImport}
               disabled={state === "importing" || validCount === 0}
               className="px-8 gap-2"
             >

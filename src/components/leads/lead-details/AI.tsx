@@ -1,28 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  useGenerateLeadBrief, 
-  useSaveLeadBrief, 
-  useGetLeadBrief 
+import {
+  useGenerateLeadBrief,
+  useSaveLeadBrief,
+  useGetLeadBrief,
 } from "@/lib/tanstack/useAI";
 import { BriefContent } from "./BriefContent";
 import { Button } from "@/components/ui/button";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Sparkles, 
-  Loader2, 
-  History, 
-  AlertTriangle, 
-  CheckCircle, 
-  ArrowRight 
+import {
+  Sparkles,
+  Loader2,
+  History,
+  AlertTriangle,
+  CheckCircle,
+  ArrowRight,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,7 +33,8 @@ export function AI({ leadId }: { leadId: string }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [currentBrief, setCurrentBrief] = useState<LeadBrief | null>(null);
 
-  const { data: savedBriefRow, isLoading: isFetchingSaved } = useGetLeadBrief(leadId);
+  const { data: savedBriefRow, isLoading: isFetchingSaved } =
+    useGetLeadBrief(leadId);
   const generateMutation = useGenerateLeadBrief();
   const saveMutation = useSaveLeadBrief();
 
@@ -48,11 +49,14 @@ export function AI({ leadId }: { leadId: string }) {
 
   const handleSave = () => {
     if (!currentBrief) return;
-    saveMutation.mutate({ leadId, brief: currentBrief }, {
-      onSuccess: () => {
-        setPreviewOpen(false);
+    saveMutation.mutate(
+      { leadId, brief: currentBrief },
+      {
+        onSuccess: () => {
+          setPreviewOpen(false);
+        },
       },
-    });
+    );
   };
 
   if (isFetchingSaved) {
@@ -71,7 +75,10 @@ export function AI({ leadId }: { leadId: string }) {
         <div>
           <h3 className="text-lg font-medium flex items-center gap-2">
             AI Sales Assistant
-            <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/10 font-normal">
+            <Badge
+              variant="secondary"
+              className="bg-primary/10 text-primary hover:bg-primary/10 font-normal"
+            >
               BETA
             </Badge>
           </h3>
@@ -79,8 +86,8 @@ export function AI({ leadId }: { leadId: string }) {
             Generate insights and follow-up strategies based on lead history.
           </p>
         </div>
-        <Button 
-          onClick={handleGenerate} 
+        <Button
+          onClick={handleGenerate}
           disabled={generateMutation.isPending}
           className="gap-2"
         >
@@ -98,7 +105,8 @@ export function AI({ leadId }: { leadId: string }) {
           <History className="h-4 w-4" />
           <AlertTitle>No brief generated yet</AlertTitle>
           <AlertDescription>
-            Click the button above to have AI analyze this lead's activity history and suggest next steps.
+            Click the button above to have AI analyze this lead's activity
+            history and suggest next steps.
           </AlertDescription>
         </Alert>
       )}
@@ -127,11 +135,15 @@ export function AI({ leadId }: { leadId: string }) {
               Generated Lead Brief
             </DialogTitle>
           </DialogHeader>
-          
-          <Alert variant="destructive" className="bg-amber-50 border-amber-200 text-amber-800">
+
+          <Alert
+            variant="destructive"
+            className="bg-amber-50 border-amber-200 text-amber-800"
+          >
             <AlertTriangle className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-xs">
-              AI-generated content. Review carefully before saving to the lead's permanent record.
+              AI-generated content. Review carefully before saving to the lead's
+              permanent record.
             </AlertDescription>
           </Alert>
 

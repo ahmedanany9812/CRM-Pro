@@ -18,12 +18,9 @@ export class AuthenticationError extends Error {
   }
 }
 
-/**
- * Reusable helper to authenticate a user and fetch their profile.
- * Optionally checks if the user has one of the allowed roles.
- */
-export async function authenticateUser(allowedRoles?: Role[]): Promise<Profile> {
-  // 1. Get session from Supabase
+export async function authenticateUser(
+  allowedRoles?: Role[],
+): Promise<Profile> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -33,7 +30,6 @@ export async function authenticateUser(allowedRoles?: Role[]): Promise<Profile> 
     throw new AuthenticationError("Unauthorized", 401);
   }
 
-  // 2. Fetch profile from Prisma
   const profile = await prisma.profile.findUnique({
     where: { id: user.id },
   });
@@ -46,7 +42,6 @@ export async function authenticateUser(allowedRoles?: Role[]): Promise<Profile> 
     throw new AuthenticationError("User is not active", 403);
   }
 
-  // 3. Optional role check
   if (allowedRoles && !allowedRoles.includes(profile.role)) {
     throw new AuthenticationError("Forbidden: Insufficient permissions", 403);
   }

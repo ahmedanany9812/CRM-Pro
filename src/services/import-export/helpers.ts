@@ -1,9 +1,6 @@
 import Papa from "papaparse";
 import { csvLeadRowSchema, RowValidationResult } from "./schema";
 
-/**
- * Parses a CSV file into an array of objects.
- */
 export function parseCSV(file: File) {
   return new Promise<Record<string, string>[]>((resolve, reject) => {
     Papa.parse(file, {
@@ -21,16 +18,13 @@ export function parseCSV(file: File) {
   });
 }
 
-/**
- * Validates an array of raw CSV rows against the lead schema.
- */
 export function validateRows(rows: Record<string, string>[]): RowValidationResult[] {
   return rows.map((row, index) => {
     const result = csvLeadRowSchema.safeParse(row);
 
     if (result.success) {
       return {
-        rowNumber: index + 2, // +1 for header, +1 for 0-indexing
+        rowNumber: index + 2,
         valid: true,
         data: result.data,
         errors: null,
@@ -46,9 +40,6 @@ export function validateRows(rows: Record<string, string>[]): RowValidationResul
   });
 }
 
-/**
- * Builds a CSV string from an array of objects.
- */
 export function buildCSVString(
   data: Record<string, unknown>[],
   headers?: string[]
@@ -69,9 +60,6 @@ function escapeField(value: string): string {
   return value;
 }
 
-/**
- * Generates a template CSV string for lead imports.
- */
 export function generateTemplateCSV(): string {
   const templateRows = [
     {

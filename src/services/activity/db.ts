@@ -3,7 +3,7 @@ import { Prisma } from "@/generated/prisma/client";
 
 export async function dbCreateActivities(
   activities: Prisma.ActivityCreateManyInput[],
-  tx?: Prisma.TransactionClient
+  tx?: Prisma.TransactionClient,
 ) {
   const client = tx ?? prisma;
   return await client.activity.createMany({
@@ -13,7 +13,7 @@ export async function dbCreateActivities(
 
 export async function dbCreateActivity(
   activity: Prisma.ActivityCreateInput,
-  tx?: Prisma.TransactionClient
+  tx?: Prisma.TransactionClient,
 ) {
   const client = tx ?? prisma;
   return await client.activity.create({
@@ -26,7 +26,7 @@ export async function dbGetLeadActivities(
   params: {
     page: number;
     pageSize: number;
-  }
+  },
 ) {
   const [activities, total] = await Promise.all([
     prisma.activity.findMany({

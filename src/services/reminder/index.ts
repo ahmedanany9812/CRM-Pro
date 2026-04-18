@@ -1,10 +1,10 @@
-import { 
-  createReminder, 
-  getReminder, 
-  updateReminderStatus, 
-  listLeadReminders, 
-  listMyReminders, 
-  cancelReminder 
+import {
+  createReminder,
+  getReminder,
+  updateReminderStatus,
+  listLeadReminders,
+  listMyReminders,
+  cancelReminder,
 } from "./service";
 
 export const ReminderService = {
@@ -16,20 +16,20 @@ export const ReminderService = {
   cancel: cancelReminder,
 } as const;
 
-export type { 
-  CreateReminderRequest, 
+export type {
+  CreateReminderRequest,
   UpdateReminderStatusRequest,
   ListLeadRemindersRequest,
   ListMyRemindersRequest,
-  UpdateReminderRequest
+  UpdateReminderRequest,
 } from "./schema";
 
-import { 
-  createReminderSchema, 
-  listLeadRemindersSchema, 
+import {
+  createReminderSchema,
+  listLeadRemindersSchema,
   listMyRemindersSchema,
   updateReminderSchema,
-  qstashReminderDueSchema
+  qstashReminderDueSchema,
 } from "./schema";
 
 export const ReminderSchema = {

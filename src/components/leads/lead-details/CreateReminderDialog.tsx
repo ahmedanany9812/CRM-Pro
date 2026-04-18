@@ -3,12 +3,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,13 +31,18 @@ interface Props {
 }
 
 export function CreateReminderDialog({ open, onOpenChange, leadId }: Props) {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       title: "Follow up call",
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
       time: "09:00",
-    }
+    },
   });
 
   const createReminderMutation = useCreateReminder(leadId);
@@ -46,7 +51,7 @@ export function CreateReminderDialog({ open, onOpenChange, leadId }: Props) {
     try {
       const [year, month, day] = values.date.split("-").map(Number);
       const [hours, minutes] = values.time.split(":").map(Number);
-      
+
       const dueAt = new Date(year, month - 1, day, hours, minutes);
 
       await createReminderMutation.mutateAsync({
@@ -70,39 +75,41 @@ export function CreateReminderDialog({ open, onOpenChange, leadId }: Props) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="title">Reminder Title</Label>
-            <Input 
-              id="title" 
-              {...register("title")} 
-              placeholder="e.g. Call to discuss pricing" 
+            <Input
+              id="title"
+              {...register("title")}
+              placeholder="e.g. Call to discuss pricing"
             />
-            {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
+            {errors.title && (
+              <p className="text-xs text-destructive">{errors.title.message}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">Date</Label>
-              <Input 
-                id="date" 
-                type="date" 
-                {...register("date")} 
-              />
-              {errors.date && <p className="text-xs text-destructive">{errors.date.message}</p>}
+              <Input id="date" type="date" {...register("date")} />
+              {errors.date && (
+                <p className="text-xs text-destructive">
+                  {errors.date.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="time">Time</Label>
-              <Input 
-                id="time" 
-                type="time" 
-                {...register("time")} 
-              />
-              {errors.time && <p className="text-xs text-destructive">{errors.time.message}</p>}
+              <Input id="time" type="time" {...register("time")} />
+              {errors.time && (
+                <p className="text-xs text-destructive">
+                  {errors.time.message}
+                </p>
+              )}
             </div>
           </div>
 
           <DialogFooter className="pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel

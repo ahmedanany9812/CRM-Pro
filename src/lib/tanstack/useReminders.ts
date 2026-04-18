@@ -1,13 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import { 
-  CreateReminderRequest, 
+import {
+  CreateReminderRequest,
   UpdateReminderRequest,
   ListLeadRemindersRequest,
-  ListMyRemindersRequest
+  ListMyRemindersRequest,
 } from "@/services/reminder/schema";
 
-export function useGetLeadReminders(leadId: string, params: Partial<ListLeadRemindersRequest> = {}) {
+export function useGetLeadReminders(
+  leadId: string,
+  params: Partial<ListLeadRemindersRequest> = {},
+) {
   return useQuery({
     queryKey: ["lead-reminders", leadId, params],
     queryFn: () => apiClient<any>(`leads/${leadId}/reminders`, { params }),
@@ -15,7 +18,9 @@ export function useGetLeadReminders(leadId: string, params: Partial<ListLeadRemi
   });
 }
 
-export function useGetMyReminders(params: Partial<ListMyRemindersRequest> = {}) {
+export function useGetMyReminders(
+  params: Partial<ListMyRemindersRequest> = {},
+) {
   return useQuery({
     queryKey: ["my-reminders", params],
     queryFn: () => apiClient<any>("reminders", { params }),
@@ -43,7 +48,13 @@ export function useCreateGlobalReminder() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ leadId, data }: { leadId: string; data: CreateReminderRequest }) =>
+    mutationFn: ({
+      leadId,
+      data,
+    }: {
+      leadId: string;
+      data: CreateReminderRequest;
+    }) =>
       apiClient(`leads/${leadId}/reminders`, {
         method: "POST",
         body: JSON.stringify(data),

@@ -5,7 +5,7 @@ import { CreateActivityRequest } from "@/services/activity";
 interface BuildLeadChangeActivitiesParams {
   leadId: string;
   actorId: string;
-  existingLead: any; 
+  existingLead: any;
   newLead: any;
   oldAssigneeName?: string;
   newAssigneeName?: string;
@@ -45,8 +45,10 @@ export function buildLeadChangeActivities({
     });
   }
 
-  // Also handle assignment change if applicable
-  if (newLead.assignedToId !== undefined && newLead.assignedToId !== existingLead.assignedToId) {
+  if (
+    newLead.assignedToId !== undefined &&
+    newLead.assignedToId !== existingLead.assignedToId
+  ) {
     activities.push({
       leadId,
       actorId,

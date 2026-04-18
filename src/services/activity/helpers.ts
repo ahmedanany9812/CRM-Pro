@@ -3,9 +3,8 @@ import { ActivityType } from "@/generated/prisma/enums";
 export function buildActivityContent(
   activityType: ActivityType,
   meta: { from: unknown; to: unknown } | undefined,
-  content?: string
+  content?: string,
 ) {
-  // Notes and call attempts pass content directly
   if (
     activityType === ActivityType.NOTE ||
     activityType === ActivityType.CALL_ATTEMPT
@@ -13,7 +12,6 @@ export function buildActivityContent(
     return content ?? null;
   }
 
-  // Change activities use meta to build content
   if (!meta) return null;
 
   switch (activityType) {

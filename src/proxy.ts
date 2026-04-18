@@ -30,17 +30,10 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake can make it very hard to debug
-  // issues with users being randomly logged out.
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Assignment Extension: isActive Middleware Check
-  // If the user is logged in, verify their status in Prisma.
-  // This allows immediate lockout when an admin deactivates a user.
   if (user && !request.nextUrl.pathname.startsWith("/login")) {
     const profile = await prisma.profile.findUnique({
       where: { id: user.id },
@@ -48,7 +41,6 @@ export async function proxy(request: NextRequest) {
     });
 
     if (profile && !profile.isActive) {
-      // Force sign out and redirect
       await supabase.auth.signOut();
       const url = request.nextUrl.clone();
       url.pathname = "/login";
@@ -56,7 +48,6 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Protect dashboard and admin routes
   const isProtectedRoute =
     request.nextUrl.pathname.startsWith("/dashboard") ||
     request.nextUrl.pathname.startsWith("/admin") ||

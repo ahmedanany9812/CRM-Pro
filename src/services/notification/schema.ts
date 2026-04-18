@@ -42,4 +42,6 @@ export interface ListNotificationsResponseData {
   unreadCount: number;
 }
 
-export type CreateNotificationRequest = z.infer<typeof createNotificationSchema>;
+export type CreateNotificationRequest = z.infer<
+  typeof createNotificationSchema
+>;

@@ -31,13 +31,13 @@ const roleBadgeVariant: Record<Role, "default" | "secondary" | "outline"> = {
   [Role.AGENT]: "outline",
 };
 
-export function UsersTable({ 
-  users, 
+export function UsersTable({
+  users,
   isLoading,
   page,
   total,
   pageSize,
-  onPageChange
+  onPageChange,
 }: UsersTableProps) {
   if (isLoading) {
     return (
@@ -62,21 +62,34 @@ export function UsersTable({
         <TableBody>
           {users.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="h-32 text-center text-muted-foreground italic">
+              <TableCell
+                colSpan={5}
+                className="h-32 text-center text-muted-foreground italic"
+              >
                 No users found.
               </TableCell>
             </TableRow>
           ) : (
             users.map((user) => (
-              <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
+              <TableRow
+                key={user.id}
+                className="hover:bg-muted/30 transition-colors"
+              >
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="font-medium text-foreground">{user.name}</span>
-                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                    <span className="font-medium text-foreground">
+                      {user.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {user.email}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={roleBadgeVariant[user.role]} className="font-medium px-2 py-0.5">
+                  <Badge
+                    variant={roleBadgeVariant[user.role]}
+                    className="font-medium px-2 py-0.5"
+                  >
                     {user.role}
                   </Badge>
                 </TableCell>
@@ -94,7 +107,9 @@ export function UsersTable({
                   )}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(user.createdAt), {
+                    addSuffix: true,
+                  })}
                 </TableCell>
                 <TableCell className="text-right">
                   <UserActions user={user} />
@@ -107,7 +122,9 @@ export function UsersTable({
 
       <div className="flex items-center justify-end space-x-4 px-4 py-3 border-t bg-muted/20">
         <div className="text-sm text-muted-foreground">
-          Showing <span className="font-medium text-foreground">{users.length}</span> of <span className="font-medium text-foreground">{total}</span> users
+          Showing{" "}
+          <span className="font-medium text-foreground">{users.length}</span> of{" "}
+          <span className="font-medium text-foreground">{total}</span> users
         </div>
         <div className="flex items-center space-x-2">
           <Button

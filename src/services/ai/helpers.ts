@@ -1,7 +1,7 @@
-import { 
-  dbGetLeadWithContext, 
-  dbGetNextReminder, 
-  dbGetRecentActivities 
+import {
+  dbGetLeadWithContext,
+  dbGetNextReminder,
+  dbGetRecentActivities,
 } from "./db";
 import { UserSnapshot } from "@/utils/authenticateUser";
 

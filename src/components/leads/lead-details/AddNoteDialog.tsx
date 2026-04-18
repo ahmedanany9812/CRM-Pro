@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogFooter,
-  DialogDescription
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,11 @@ interface AddNoteDialogProps {
   leadId: string;
 }
 
-export const AddNoteDialog = ({ open, onOpenChange, leadId }: AddNoteDialogProps) => {
+export const AddNoteDialog = ({
+  open,
+  onOpenChange,
+  leadId,
+}: AddNoteDialogProps) => {
   const [content, setContent] = useState("");
   const createNoteMutation = useCreateNote(leadId);
 
@@ -29,8 +33,7 @@ export const AddNoteDialog = ({ open, onOpenChange, leadId }: AddNoteDialogProps
     if (!content.trim() || createNoteMutation.isPending) return;
 
     await createNoteMutation.mutateAsync({ content });
-    
-    // Reset and close
+
     setContent("");
     onOpenChange(false);
   };
@@ -40,10 +43,10 @@ export const AddNoteDialog = ({ open, onOpenChange, leadId }: AddNoteDialogProps
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <StickyNote className="h-5 w-5" />
-             </div>
-             <DialogTitle className="text-xl font-bold">Add Note</DialogTitle>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <StickyNote className="h-5 w-5" />
+            </div>
+            <DialogTitle className="text-xl font-bold">Add Note</DialogTitle>
           </div>
           <DialogDescription>
             Add a private note to this lead. Only your team can see this.
@@ -52,7 +55,9 @@ export const AddNoteDialog = ({ open, onOpenChange, leadId }: AddNoteDialogProps
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="content">Note Content <span className="text-destructive">*</span></Label>
+            <Label htmlFor="content">
+              Note Content <span className="text-destructive">*</span>
+            </Label>
             <Textarea
               id="content"
               placeholder="Start typing your note here..."
@@ -67,8 +72,8 @@ export const AddNoteDialog = ({ open, onOpenChange, leadId }: AddNoteDialogProps
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleAddNote} 
+          <Button
+            onClick={handleAddNote}
             disabled={!content.trim() || createNoteMutation.isPending}
           >
             {createNoteMutation.isPending && (

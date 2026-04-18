@@ -2,22 +2,26 @@ import { v4 as uuidv4 } from "uuid";
 import { createClient as createSupabaseAdmin } from "@/lib/supabase/admin";
 import { resend } from "@/lib/resend";
 import { generateInviteEmailHTML } from "./helpers";
-import { 
-  dbCreateProfile, 
-  dbDeactivateUser, 
-  dbFindUserByEmail, 
-  dbFindUserById, 
-  dbListAllUsers, 
-  dbReactivateUser, 
-  dbUpdateUser 
+import {
+  dbCreateProfile,
+  dbDeactivateUser,
+  dbFindUserByEmail,
+  dbFindUserById,
+  dbListAllUsers,
+  dbReactivateUser,
+  dbUpdateUser,
 } from "./db";
-import { CreateUserSchema, UpdateUserSchema, ListUsersPaginatedSchema } from "./schema";
+import {
+  CreateUserSchema,
+  UpdateUserSchema,
+  ListUsersPaginatedSchema,
+} from "./schema";
 import { Profile } from "@/generated/prisma/client";
 
 export class AdminServiceError extends Error {
   constructor(
     public message: string,
-    public statusCode: number = 400
+    public statusCode: number = 400,
   ) {
     super(message);
     this.name = "AdminServiceError";
@@ -25,70 +29,69 @@ export class AdminServiceError extends Error {
 }
 
 export async function createUser(data: CreateUserSchema) {
-  // 1. Check if user already exists in our DB
   const existingUser = await dbFindUserByEmail(data.email);
   if (existingUser) {
     throw new AdminServiceError("A user with this email already exists", 409);
   }
-
-  // 2. Create Supabase Auth User
   const supabaseAdmin = createSupabaseAdmin();
   const tempPassword = uuidv4();
-  
-  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-    email: data.email,
-    password: tempPassword,
-    email_confirm: true, // Mark email as confirmed since admin is creating it
-    user_metadata: { name: data.name }
-  });
+
+  const { data: authData, error: authError } =
+    await supabaseAdmin.auth.admin.createUser({
+      email: data.email,
+      password: tempPassword,
+      email_confirm: true,
+      user_metadata: { name: data.name },
+    });
 
   if (authError || !authData.user) {
     console.error("Supabase Auth Error:", authError);
-    throw new AdminServiceError(authError?.message || "Failed to create authentication account", 500);
+    throw new AdminServiceError(
+      authError?.message || "Failed to create authentication account",
+      500,
+    );
   }
 
-  // 3. Create Prisma Profile
   let profile: Profile;
   try {
-    profile = await dbCreateProfile({
+    profile = (await dbCreateProfile({
       id: authData.user.id,
       email: data.email,
       name: data.name,
       role: data.role,
-    }) as Profile;
+    })) as Profile;
   } catch (error) {
-    // Cleanup: if profile creation fails, we should technically delete the auth user
-    // for this session we'll just log and throw
     console.error("Prisma Profile Error:", error);
-    throw new AdminServiceError("Auth account created but failed to create profile record", 500);
+    throw new AdminServiceError(
+      "Auth account created but failed to create profile record",
+      500,
+    );
   }
 
-  // 4. Generate Magic Link and Send Invite Email
-  const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-    type: "magiclink",
-    email: data.email,
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
-    }
-  });
+  const { data: linkData, error: linkError } =
+    await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email: data.email,
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      },
+    });
 
   if (linkError || !linkData.properties?.action_link) {
     console.error("Magic Link Error:", linkError);
-    // Graceful degradation: User is created, they can use "Forgot Password" or admin can resend
     return profile;
   }
 
   try {
     const magicLink = linkData.properties.action_link;
     await resend.emails.send({
-      from: "Whispyr CRM <onboarding@resend.dev>", // Replace with your verified domain in production
+      from: "Whispyr CRM <onboarding@resend.dev>",
       to: data.email,
       subject: "You're invited to Whispyr CRM",
       html: generateInviteEmailHTML(data.name, magicLink),
     });
   } catch (error) {
     console.error("Email Sending Error:", error);
-    // Graceful degradation
   }
 
   return profile;
@@ -110,9 +113,8 @@ export async function getUserById(id: string) {
 export async function updateUserById(
   adminId: string,
   targetUserId: string,
-  data: UpdateUserSchema
+  data: UpdateUserSchema,
 ) {
-  // Self-protection: Admin cannot change their own role here
   if (adminId === targetUserId && data.role) {
     throw new AdminServiceError("You cannot change your own role", 400);
   }
@@ -126,7 +128,6 @@ export async function updateUserById(
 }
 
 export async function deactivateUser(adminId: string, targetUserId: string) {
-  // Self-protection: Admin cannot deactivate themselves
   if (adminId === targetUserId) {
     throw new AdminServiceError("You cannot deactivate yourself", 400);
   }
@@ -163,22 +164,24 @@ export async function resendInvite(targetUserId: string) {
   }
 
   const supabaseAdmin = createSupabaseAdmin();
-  
-  // 1. Generate fresh Magic Link
-  const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-    type: "magiclink",
-    email: user.email,
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
-    }
-  });
+
+  const { data: linkData, error: linkError } =
+    await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email: user.email,
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      },
+    });
 
   if (linkError || !linkData.properties?.action_link) {
     console.error("Magic Link Error (Resend Invite):", linkError);
-    throw new AdminServiceError(linkError?.message || "Failed to generate invitation link", 500);
+    throw new AdminServiceError(
+      linkError?.message || "Failed to generate invitation link",
+      500,
+    );
   }
 
-  // 2. Send Email via Resend
   const magicLink = linkData.properties.action_link;
   await resend.emails.send({
     from: "Whispyr CRM <onboarding@resend.dev>",

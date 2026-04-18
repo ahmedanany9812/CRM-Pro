@@ -9,11 +9,6 @@ import {
 } from "./schema";
 import { Prisma } from "@/generated/prisma/client";
 
-/**
- * Pure database layer for Leads.
- * Handles atomic transactions for Leads and related Activities.
- */
-
 export async function dbListLeads(
   where: Prisma.LeadWhereInput,
   params: ListLeadsParams

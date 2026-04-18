@@ -41,7 +41,11 @@ interface EditUserDialogProps {
   user: User;
 }
 
-export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps) {
+export function EditUserDialog({
+  open,
+  onOpenChange,
+  user,
+}: EditUserDialogProps) {
   const updateUserMutation = useUpdateUser(user.id);
 
   const form = useForm<UpdateUserSchema>({
@@ -52,7 +56,6 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
     },
   });
 
-  // Reset form with current user data when dialog opens
   useEffect(() => {
     if (open) {
       form.reset({
@@ -78,12 +81,16 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
         <DialogHeader>
           <DialogTitle>Edit User Profile</DialogTitle>
           <DialogDescription>
-            Modify {user.name}'s account details. Role changes take effect immediately.
+            Modify {user.name}'s account details. Role changes take effect
+            immediately.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 pt-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -103,7 +110,10 @@ export function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps
               render={({ field }: { field: any }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a role" />

@@ -1,12 +1,12 @@
-import { 
-  createNotification, 
-  listNotifications, 
-  markNotificationRead 
+import {
+  createNotification,
+  listNotifications,
+  markNotificationRead,
 } from "./service";
-import { 
-  createNotificationSchema, 
-  listNotificationsQuerySchema, 
-  notificationIdParamsSchema 
+import {
+  createNotificationSchema,
+  listNotificationsQuerySchema,
+  notificationIdParamsSchema,
 } from "./schema";
 
 export const NotificationService = {
@@ -15,7 +15,6 @@ export const NotificationService = {
   markRead: markReadNotification,
 } as any;
 
-// Helper to handle the typo from previous plan if needed, but let's just export the correct name
 export function markReadNotification(profile: any, id: string) {
   return markNotificationRead(profile, id);
 }
@@ -26,8 +25,8 @@ export const NotificationSchema = {
   idParam: notificationIdParamsSchema,
 } as const;
 
-export type { 
-  CreateNotificationRequest, 
-  NotificationListItem, 
-  ListNotificationsResponseData 
+export type {
+  CreateNotificationRequest,
+  NotificationListItem,
+  ListNotificationsResponseData,
 } from "./schema";

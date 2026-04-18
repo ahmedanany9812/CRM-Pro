@@ -58,16 +58,24 @@ export const dbListRemindersForLead = async (
 
 export const dbListRemindersForUser = async (
   userId: string,
-  params: { page: number; pageSize: number; status?: ReminderStatus; leadId?: string; overdue?: boolean },
+  params: {
+    page: number;
+    pageSize: number;
+    status?: ReminderStatus;
+    leadId?: string;
+    overdue?: boolean;
+  },
 ) => {
   const where: Prisma.ReminderWhereInput = {
     assignedToId: userId,
     ...(params.status ? { status: params.status } : {}),
     ...(params.leadId ? { leadId: params.leadId } : {}),
-    ...(params.overdue !== undefined ? {
-      status: "PENDING",
-      dueAt: params.overdue ? { lt: new Date() } : { gt: new Date() },
-    } : {}),
+    ...(params.overdue !== undefined
+      ? {
+          status: "PENDING",
+          dueAt: params.overdue ? { lt: new Date() } : { gt: new Date() },
+        }
+      : {}),
   };
 
   const [reminders, total] = await Promise.all([

@@ -1,20 +1,20 @@
-import { 
-  dbCreateLeadBrief, 
-  dbGetLastLeadBrief, 
-  dbGetLeadWithContext, 
-  dbGetNextReminder, 
-  dbGetRecentActivities 
+import {
+  dbCreateLeadBrief,
+  dbGetLastLeadBrief,
+  dbGetLeadWithContext,
+  dbGetNextReminder,
+  dbGetRecentActivities,
 } from "./db";
-import { 
-  buildLeadBriefPrompt, 
-  buildCallFollowupPrompt, 
-  validateLeadAccess 
+import {
+  buildLeadBriefPrompt,
+  buildCallFollowupPrompt,
+  validateLeadAccess,
 } from "./helpers";
 import { generateText, Output } from "ai";
-import { 
-  leadBriefSchema, 
-  callFollowUpSchema, 
-  SaveLeadBriefRequest 
+import {
+  leadBriefSchema,
+  callFollowUpSchema,
+  SaveLeadBriefRequest,
 } from "./schema";
 import { createAIActivity } from "../activity/service";
 import { ActivityType } from "@/generated/prisma/enums";
@@ -57,10 +57,6 @@ export async function generateLeadBrief(leadId: string, user: Profile) {
   return output;
 }
 
-/**
- * Assignment Task 1: Call Follow-up Service Function
- * Generates follow-up suggestions after a call.
- */
 export async function generateCallFollowup(
   leadId: string,
   callOutcome: any,
@@ -76,7 +72,6 @@ export async function generateCallFollowup(
     throw new Error("You are not authorized to access this lead");
   }
 
-  // Fetch recent activities (limit 10 for focused follow-up)
   const activities = await dbGetRecentActivities(leadId, 10);
 
   const prompt = buildCallFollowupPrompt({
@@ -92,7 +87,6 @@ export async function generateCallFollowup(
     prompt,
   });
 
-  // Log activity for generation
   await createAIActivity({
     type: ActivityType.AI_FOLLOWUP_DRAFT_GENERATED,
     leadId: leadId,

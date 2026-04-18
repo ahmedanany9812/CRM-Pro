@@ -1,13 +1,13 @@
-import { 
-  generateLeadBriefSchema, 
-  saveLeadBriefSchema, 
-  generateCallFollowUpRequestSchema 
+import {
+  generateLeadBriefSchema,
+  saveLeadBriefSchema,
+  generateCallFollowUpRequestSchema,
 } from "./schema";
-import { 
-  generateLeadBrief, 
-  getLastLeadBrief, 
-  saveLeadBrief, 
-  generateCallFollowup 
+import {
+  generateLeadBrief,
+  getLastLeadBrief,
+  saveLeadBrief,
+  generateCallFollowup,
 } from "./service";
 
 export const AIService = {

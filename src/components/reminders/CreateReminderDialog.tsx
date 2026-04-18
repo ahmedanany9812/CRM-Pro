@@ -3,32 +3,32 @@
 import { useState } from "react";
 import { format, addDays } from "date-fns";
 import { Calendar as CalendarIcon, Loader2, Plus } from "lucide-react";
-import { 
-  useCreateReminder, 
-  useCreateGlobalReminder 
+import {
+  useCreateReminder,
+  useCreateGlobalReminder,
 } from "@/lib/tanstack/useReminders";
 import { useGetLeads } from "@/lib/tanstack/useLeads";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
-  DialogFooter
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,17 +40,20 @@ interface CreateReminderDialogProps {
   trigger?: React.ReactNode;
 }
 
-export function CreateReminderDialog({ leadId: initialLeadId, trigger }: CreateReminderDialogProps) {
+export function CreateReminderDialog({
+  leadId: initialLeadId,
+  trigger,
+}: CreateReminderDialogProps) {
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState("09:00");
   const [title, setTitle] = useState("");
-  const [selectedLeadId, setSelectedLeadId] = useState<string>(initialLeadId || "");
-  
+  const [selectedLeadId, setSelectedLeadId] = useState<string>(
+    initialLeadId || "",
+  );
+
   const { toast } = useToast();
-  
-  // Hooks for lead fetching in global context
-  // We use page 1 and a large pageSize for a simple selector
+
   const { data: leadsData } = useGetLeads({ page: 1, pageSize: 100 });
   const leads = leadsData?.leads ?? [];
 
@@ -62,12 +65,9 @@ export function CreateReminderDialog({ leadId: initialLeadId, trigger }: CreateR
     const activeLeadId = initialLeadId || selectedLeadId;
     if (!date || !title || !activeLeadId) return;
 
-    // Combine date and time
     const [hours, minutes] = time.split(":").map(Number);
     const dueAt = new Date(date);
     dueAt.setHours(hours, minutes, 0, 0);
-
-    // Basic validation from the service layer is 7 days, so we check here too
     if (dueAt < new Date()) {
       toast({
         title: "Error",
@@ -78,15 +78,18 @@ export function CreateReminderDialog({ leadId: initialLeadId, trigger }: CreateR
     }
 
     const payload = { title, dueAt };
-    
+
     if (initialLeadId) {
       createLeadReminder.mutate(payload, {
         onSuccess: () => handleSuccess(),
       });
     } else {
-      createGlobalReminder.mutate({ leadId: activeLeadId, data: payload }, {
-        onSuccess: () => handleSuccess(),
-      });
+      createGlobalReminder.mutate(
+        { leadId: activeLeadId, data: payload },
+        {
+          onSuccess: () => handleSuccess(),
+        },
+      );
     }
   };
 
@@ -137,15 +140,15 @@ export function CreateReminderDialog({ leadId: initialLeadId, trigger }: CreateR
 
           <div className="space-y-2">
             <Label htmlFor="title">What should we remind you about?</Label>
-            <Input 
-              id="title" 
-              placeholder="e.g. Follow up on proposal" 
+            <Input
+              id="title"
+              placeholder="e.g. Follow up on proposal"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Date</Label>
@@ -155,7 +158,7 @@ export function CreateReminderDialog({ leadId: initialLeadId, trigger }: CreateR
                     variant={"outline"}
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
+                      !date && "text-muted-foreground",
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -167,8 +170,8 @@ export function CreateReminderDialog({ leadId: initialLeadId, trigger }: CreateR
                     mode="single"
                     selected={date}
                     onSelect={setDate}
-                    disabled={(date) => 
-                      date < new Date(new Date().setHours(0,0,0,0)) || 
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0)) ||
                       date > addDays(new Date(), 7)
                     }
                     initialFocus
@@ -176,7 +179,7 @@ export function CreateReminderDialog({ leadId: initialLeadId, trigger }: CreateR
                 </PopoverContent>
               </Popover>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="time">Time</Label>
               <Input
@@ -188,20 +191,29 @@ export function CreateReminderDialog({ leadId: initialLeadId, trigger }: CreateR
               />
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setOpen(false)}
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              disabled={(initialLeadId ? createLeadReminder.isPending : createGlobalReminder.isPending) || !date || !title || (!initialLeadId && !selectedLeadId)}
+            <Button
+              type="submit"
+              disabled={
+                (initialLeadId
+                  ? createLeadReminder.isPending
+                  : createGlobalReminder.isPending) ||
+                !date ||
+                !title ||
+                (!initialLeadId && !selectedLeadId)
+              }
             >
-              {(initialLeadId ? createLeadReminder.isPending : createGlobalReminder.isPending) && (
+              {(initialLeadId
+                ? createLeadReminder.isPending
+                : createGlobalReminder.isPending) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               Create Reminder

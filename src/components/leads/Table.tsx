@@ -58,11 +58,21 @@ export function LeadsTable({ leads, isLoading }: LeadsTableProps) {
       <Table>
         <TableHeader className="bg-muted/40">
           <TableRow className="hover:bg-transparent">
-            <TableHead className="font-bold text-foreground h-12">Name</TableHead>
-            <TableHead className="font-bold text-foreground h-12">Email</TableHead>
-            <TableHead className="font-bold text-foreground h-12">Phone</TableHead>
-            <TableHead className="text-center font-bold text-foreground h-12">Status</TableHead>
-            <TableHead className="text-center font-bold text-foreground h-12">Stage</TableHead>
+            <TableHead className="font-bold text-foreground h-12">
+              Name
+            </TableHead>
+            <TableHead className="font-bold text-foreground h-12">
+              Email
+            </TableHead>
+            <TableHead className="font-bold text-foreground h-12">
+              Phone
+            </TableHead>
+            <TableHead className="text-center font-bold text-foreground h-12">
+              Status
+            </TableHead>
+            <TableHead className="text-center font-bold text-foreground h-12">
+              Stage
+            </TableHead>
             <TableHead className="w-[100px] text-right font-bold text-foreground h-12">
               Actions
             </TableHead>
@@ -77,17 +87,22 @@ export function LeadsTable({ leads, isLoading }: LeadsTableProps) {
             </TableRow>
           ) : leads.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+              <TableCell
+                colSpan={6}
+                className="h-32 text-center text-muted-foreground"
+              >
                 <div className="flex flex-col items-center justify-center gap-1">
                   <span className="font-medium">No leads found</span>
-                  <span className="text-xs">Try adjusting your filters or search.</span>
+                  <span className="text-xs">
+                    Try adjusting your filters or search.
+                  </span>
                 </div>
               </TableCell>
             </TableRow>
           ) : (
             leads.map((lead) => (
-              <TableRow 
-                key={lead.id} 
+              <TableRow
+                key={lead.id}
                 className="group transition-colors hover:bg-muted/30"
               >
                 <TableCell className="py-4">
@@ -106,7 +121,7 @@ export function LeadsTable({ leads, isLoading }: LeadsTableProps) {
                 </TableCell>
                 <TableCell className="py-4">
                   <div className="flex justify-center">
-                    <Badge 
+                    <Badge
                       variant={getStatusVariant(lead.status)}
                       className="px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider text-[10px]"
                     >
@@ -116,11 +131,11 @@ export function LeadsTable({ leads, isLoading }: LeadsTableProps) {
                 </TableCell>
                 <TableCell className="py-4">
                   <div className="flex justify-center">
-                    <Badge 
+                    <Badge
                       variant="outline"
                       className={cn(
                         "px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider text-[10px]",
-                        getStageColor(lead.stage)
+                        getStageColor(lead.stage),
                       )}
                     >
                       {formatEnum(lead.stage)}

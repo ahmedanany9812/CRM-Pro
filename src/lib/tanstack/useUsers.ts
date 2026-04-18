@@ -1,7 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { Role } from "@/generated/prisma/enums";
-import { CreateUserSchema, UpdateUserSchema, ListUsersPaginatedSchema } from "@/services/admin/schema";
+import {
+  CreateUserSchema,
+  UpdateUserSchema,
+  ListUsersPaginatedSchema,
+} from "@/services/admin/schema";
 
 export type User = {
   id: string;
@@ -12,14 +16,15 @@ export type User = {
   createdAt: string;
 };
 
-/**
- * Hook to fetch all users (for admin panel).
- */
-export function useUsers(params: ListUsersPaginatedSchema = { page: 1, pageSize: 10 }) {
+export function useUsers(
+  params: ListUsersPaginatedSchema = { page: 1, pageSize: 10 },
+) {
   return useQuery({
     queryKey: ["admin", "users", params.page, params.pageSize],
     queryFn: async () => {
-      const response = await apiClient<any>(`admin/users?page=${params.page}&pageSize=${params.pageSize}`);
+      const response = await apiClient<any>(
+        `admin/users?page=${params.page}&pageSize=${params.pageSize}`,
+      );
       return {
         users: response.data as User[],
         total: response.pagination.total as number,
@@ -28,9 +33,6 @@ export function useUsers(params: ListUsersPaginatedSchema = { page: 1, pageSize:
   });
 }
 
-/**
- * Hook to create a new user.
- */
 export function useCreateUser() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -43,14 +45,11 @@ export function useCreateUser() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-      queryClient.invalidateQueries({ queryKey: ["users"] }); // Also invalidate global users list if any
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 }
 
-/**
- * Hook to update an existing user.
- */
 export function useUpdateUser(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -67,9 +66,6 @@ export function useUpdateUser(id: string) {
   });
 }
 
-/**
- * Hook to deactivate a user.
- */
 export function useDeactivateUser(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -85,9 +81,6 @@ export function useDeactivateUser(id: string) {
   });
 }
 
-/**
- * Hook to reactivate a user.
- */
 export function useReactivateUser(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -103,9 +96,6 @@ export function useReactivateUser(id: string) {
   });
 }
 
-/**
- * Hook to resend a magic link invitation.
- */
 export function useResendInvite(id: string) {
   return useMutation({
     mutationFn: async () => {
@@ -117,13 +107,10 @@ export function useResendInvite(id: string) {
   });
 }
 
-/**
- * Legacy hook to fetch all active users (for dropdowns).
- * Kept for backward compatibility but using the same endpoint or similar if needed.
- */
 export function useGetUsers() {
   return useQuery({
     queryKey: ["users"],
-    queryFn: () => apiClient<{ id: string; name: string; email: string }[]>("users"),
+    queryFn: () =>
+      apiClient<{ id: string; name: string; email: string }[]>("users"),
   });
 }

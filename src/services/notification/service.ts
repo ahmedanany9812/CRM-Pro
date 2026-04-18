@@ -1,9 +1,9 @@
 import { Prisma, Profile } from "@/generated/prisma/client";
 import { CreateNotificationRequest } from "./schema";
-import { 
-  dbCreateNotification, 
-  dbListNotificationsForRecipient, 
-  dbMarkNotificationReadForRecipient 
+import {
+  dbCreateNotification,
+  dbListNotificationsForRecipient,
+  dbMarkNotificationReadForRecipient,
 } from "./db";
 
 export const createNotification = async (

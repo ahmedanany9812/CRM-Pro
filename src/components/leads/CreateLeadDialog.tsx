@@ -2,7 +2,10 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createLeadSchema, type CreateLeadRequest } from "@/services/lead/schema";
+import {
+  createLeadSchema,
+  type CreateLeadRequest,
+} from "@/services/lead/schema";
 import { useCreateLead } from "@/lib/tanstack/useLeads";
 import {
   Dialog,
@@ -27,7 +30,10 @@ interface CreateLeadDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function CreateLeadDialog({ open, onOpenChange }: CreateLeadDialogProps) {
+export function CreateLeadDialog({
+  open,
+  onOpenChange,
+}: CreateLeadDialogProps) {
   const { mutate: createLead, isPending } = useCreateLead();
 
   const {
@@ -60,7 +66,8 @@ export function CreateLeadDialog({ open, onOpenChange }: CreateLeadDialogProps) 
         <DialogHeader>
           <DialogTitle>Create New Lead</DialogTitle>
           <DialogDescription>
-            Enter the details of the new lead. This will automatically log a creation activity.
+            Enter the details of the new lead. This will automatically log a
+            creation activity.
           </DialogDescription>
         </DialogHeader>
 

@@ -2,10 +2,10 @@ import { Prisma, Profile } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@/generated/prisma/enums";
 import { dbCreateActivities, dbGetLeadActivities } from "./db";
-import { 
-  createManyActivitiesSchema, 
-  CreateActivityRequest, 
-  GetLeadActivitiesRequest 
+import {
+  createManyActivitiesSchema,
+  CreateActivityRequest,
+  GetLeadActivitiesRequest,
 } from "./schema";
 import { buildActivityContent } from "./helpers";
 import { buildPagination } from "@/lib/pagination";
@@ -13,7 +13,7 @@ import { UserSnapshot } from "@/utils/authenticateUser";
 
 export async function createActivities(
   request: CreateActivityRequest[],
-  tx?: Prisma.TransactionClient
+  tx?: Prisma.TransactionClient,
 ) {
   const validated = createManyActivitiesSchema.safeParse(request);
   if (!validated.success) {
@@ -24,8 +24,12 @@ export async function createActivities(
   }
 
   const activitiesToCreate: Prisma.ActivityCreateManyInput[] = [];
-  for (const activity of (validated.data as any)) {
-    const content = buildActivityContent(activity.type, activity.meta as any, activity.content);
+  for (const activity of validated.data as any) {
+    const content = buildActivityContent(
+      activity.type,
+      activity.meta as any,
+      activity.content,
+    );
     activitiesToCreate.push({
       leadId: activity.leadId,
       actorId: activity.actorId,
@@ -45,7 +49,7 @@ export async function createActivities(
 
 export async function getLeadActivities(
   request: GetLeadActivitiesRequest,
-  userSnapshot: UserSnapshot
+  userSnapshot: UserSnapshot,
 ) {
   const where: Prisma.ActivityWhereInput = {
     leadId: request.leadId,
@@ -78,7 +82,7 @@ export async function createAIActivity(
     actorId: string;
     content: string;
   },
-  tx?: Prisma.TransactionClient
+  tx?: Prisma.TransactionClient,
 ) {
   return await prisma.activity.create({
     data: {

@@ -1,4 +1,7 @@
-export function generateInviteEmailHTML(name: string, magicLink: string): string {
+export function generateInviteEmailHTML(
+  name: string,
+  magicLink: string,
+): string {
   return `
 <!DOCTYPE html>
 <html>

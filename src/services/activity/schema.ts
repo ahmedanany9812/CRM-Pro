@@ -1,14 +1,23 @@
 import { z } from "zod";
 import { ActivityType, LeadStatus, LeadStage } from "@/generated/prisma/enums";
 
-const leadStatusSchema = z.enum([LeadStatus.OPEN, LeadStatus.WON, LeadStatus.LOST]);
-const leadStageSchema = z.enum([LeadStage.NEW, LeadStage.CONTACTED, LeadStage.QUALIFIED, LeadStage.NEGOTIATING]);
+const leadStatusSchema = z.enum([
+  LeadStatus.OPEN,
+  LeadStatus.WON,
+  LeadStatus.LOST,
+]);
+const leadStageSchema = z.enum([
+  LeadStage.NEW,
+  LeadStage.CONTACTED,
+  LeadStage.QUALIFIED,
+  LeadStage.NEGOTIATING,
+]);
 
 export const createActivitySchema = z
   .object({
-    leadId: z.string().uuid(),
-    actorId: z.string().uuid(),
-    type: z.nativeEnum(ActivityType),
+    leadId: z.uuid(),
+    actorId: z.uuid(),
+    type: z.enum(ActivityType),
     meta: z
       .object({
         from: z.unknown(),

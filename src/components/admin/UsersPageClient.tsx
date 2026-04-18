@@ -11,7 +11,7 @@ export function UsersPageClient() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 10;
-  
+
   const { data, isLoading, error } = useUsers({ page, pageSize });
   const users = data?.users ?? [];
   const total = data?.total ?? 0;
@@ -19,8 +19,12 @@ export function UsersPageClient() {
   if (error) {
     return (
       <div className="flex h-[400px] flex-col items-center justify-center rounded-lg border border-dashed border-destructive/50 bg-destructive/5 p-8 text-center">
-        <h3 className="text-lg font-semibold text-destructive">Failed to load users</h3>
-        <p className="text-sm text-muted-foreground">Please try refreshing the page or contact support.</p>
+        <h3 className="text-lg font-semibold text-destructive">
+          Failed to load users
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          Please try refreshing the page or contact support.
+        </p>
       </div>
     );
   }
@@ -47,22 +51,22 @@ export function UsersPageClient() {
               <Users className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Users</p>
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Total Users
+              </p>
               <h2 className="text-2xl font-bold">{total}</h2>
             </div>
           </div>
         </div>
-        {/* Note: Accurate Active/Inactive counts would require a separate count query or fetching all users. 
-            For now, we'll keep them but they reflect the current PAGE only if we don't fetch totals. 
-            Actually, let's remove the Active/Inactive stats if we don't have the full data to avoid confusion, 
-            or just keep "Total Users" as the primary KPI. */}
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="rounded-lg bg-green-500/10 p-2 text-green-600">
               <Plus className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Active</p>
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Active
+              </p>
               <h2 className="text-2xl font-bold">
                 {users?.filter((u) => u.isActive).length ?? 0}
               </h2>
@@ -75,7 +79,9 @@ export function UsersPageClient() {
               <Users className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Inactive</p>
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Inactive
+              </p>
               <h2 className="text-2xl font-bold">
                 {users?.filter((u) => !u.isActive).length ?? 0}
               </h2>
@@ -85,17 +91,17 @@ export function UsersPageClient() {
       </div>
 
       <UsersTable
-        users={users} 
-        isLoading={isLoading} 
+        users={users}
+        isLoading={isLoading}
         page={page}
         total={total}
         pageSize={pageSize}
         onPageChange={setPage}
       />
-      
+
       <CreateUserDialog
-        open={isCreateDialogOpen} 
-        onOpenChange={setIsCreateDialogOpen} 
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
       />
     </div>
   );

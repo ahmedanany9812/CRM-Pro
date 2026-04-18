@@ -103,4 +103,6 @@ export const generateCallFollowUpRequestSchema = z.object({
   agentNotes: z.string().trim().max(5000).optional(),
 });
 
-export type GenerateCallFollowUpRequest = z.infer<typeof generateCallFollowUpRequestSchema>;
+export type GenerateCallFollowUpRequest = z.infer<
+  typeof generateCallFollowUpRequestSchema
+>;

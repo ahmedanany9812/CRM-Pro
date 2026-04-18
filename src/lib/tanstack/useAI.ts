@@ -40,10 +40,6 @@ export function useGetLeadBrief(leadId: string) {
   });
 }
 
-/**
- * Assignment Task 3: Call Follow-up TanStack Hook
- * Calls the AI follow-up generation endpoint.
- */
 export function useGenerateCallFollowup(leadId: string) {
   return useMutation({
     mutationFn: async (args: {

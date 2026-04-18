@@ -1,5 +1,9 @@
 import { createActivities, getLeadActivities } from "./service";
-import { getLeadActivitiesSchema, createNoteSchema, createCallAttemptSchema } from "./schema";
+import {
+  getLeadActivitiesSchema,
+  createNoteSchema,
+  createCallAttemptSchema,
+} from "./schema";
 
 export const ActivityService = {
   create: createActivities,
@@ -12,9 +16,9 @@ export const ActivitySchema = {
   createCallAttempt: createCallAttemptSchema,
 } as const;
 
-export type { 
-  CreateActivityRequest, 
+export type {
+  CreateActivityRequest,
   GetLeadActivitiesRequest,
   CreateNoteRequest,
-  CreateCallAttemptRequest
+  CreateCallAttemptRequest,
 } from "./schema";

@@ -37,7 +37,11 @@ interface EditLeadDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps) {
+export function EditLeadDialog({
+  lead,
+  open,
+  onOpenChange,
+}: EditLeadDialogProps) {
   const { mutate: updateLead, isPending } = useEditLead(lead.id);
 
   const {
@@ -75,7 +79,8 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
         <DialogHeader>
           <DialogTitle>Edit Lead: {lead.name}</DialogTitle>
           <DialogDescription>
-            Update the lead's details. Any status or stage changes will be logged to the activity timeline.
+            Update the lead's details. Any status or stage changes will be
+            logged to the activity timeline.
           </DialogDescription>
         </DialogHeader>
 

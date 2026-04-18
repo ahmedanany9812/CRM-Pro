@@ -27,8 +27,8 @@ export const Pagination = ({
   return (
     <div className="flex items-center justify-between border-t pt-4">
       <div className="text-sm text-muted-foreground">
-        Showing <span className="font-medium text-foreground">{startItem}</span> to{" "}
-        <span className="font-medium text-foreground">{endItem}</span> of{" "}
+        Showing <span className="font-medium text-foreground">{startItem}</span>{" "}
+        to <span className="font-medium text-foreground">{endItem}</span> of{" "}
         <span className="font-medium text-foreground">{total}</span> entries
       </div>
       <div className="flex space-x-2">

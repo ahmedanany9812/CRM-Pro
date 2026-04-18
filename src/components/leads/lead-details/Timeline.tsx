@@ -86,7 +86,6 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
 
   return (
     <div className="space-y-6">
-      {/* Quick Add Actions */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Button
           variant="outline"
@@ -97,7 +96,9 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
             <Phone className="h-4 w-4" />
           </div>
           <div className="flex flex-col items-start translate-y-[-2px]">
-            <span className="text-sm font-semibold text-foreground">Log Call Attempt</span>
+            <span className="text-sm font-semibold text-foreground">
+              Log Call Attempt
+            </span>
             <span className="text-xs">Record the outcome of a call</span>
           </div>
         </Button>
@@ -110,13 +111,14 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
             <Pencil className="h-4 w-4" />
           </div>
           <div className="flex flex-col items-start text-left translate-y-[-2px]">
-            <span className="text-sm font-semibold text-foreground">Add Note</span>
+            <span className="text-sm font-semibold text-foreground">
+              Add Note
+            </span>
             <span className="text-xs">Add a private note to this lead</span>
           </div>
         </Button>
       </div>
 
-      {/* Note Input */}
       <Card className="overflow-hidden border-primary/20 bg-primary/5 shadow-sm">
         <CardContent className="p-0">
           <Textarea
@@ -146,7 +148,6 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
         </CardContent>
       </Card>
 
-      {/* Timeline List */}
       <div className="relative mt-8 space-y-0">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
@@ -173,7 +174,6 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
 
               return (
                 <div key={activity.id} className="relative">
-                  {/* Timeline Dot/Icon */}
                   <div className="absolute -left-[48px] flex h-8 w-8 items-center justify-center rounded-full border bg-background shadow-sm ring-4 ring-background">
                     <Icon className="h-4 w-4 text-muted-foreground" />
                   </div>

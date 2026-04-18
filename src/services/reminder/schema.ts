@@ -7,11 +7,13 @@ export const createReminderSchema = z.object({
 });
 
 export const updateReminderStatusSchema = z.object({
-  status: z.nativeEnum(ReminderStatus),
+  status: z.enum(ReminderStatus),
 });
 
 export type CreateReminderRequest = z.infer<typeof createReminderSchema>;
-export type UpdateReminderStatusRequest = z.infer<typeof updateReminderStatusSchema>;
+export type UpdateReminderStatusRequest = z.infer<
+  typeof updateReminderStatusSchema
+>;
 
 export const listLeadRemindersSchema = z.object({
   page: z.coerce.number().min(1).default(1),

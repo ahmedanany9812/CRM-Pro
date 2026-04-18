@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { User, useDeactivateUser, useReactivateUser, useResendInvite } from "@/lib/tanstack/useUsers";
+import {
+  User,
+  useDeactivateUser,
+  useReactivateUser,
+  useResendInvite,
+} from "@/lib/tanstack/useUsers";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +22,7 @@ import {
   UserCog,
   UserX,
   UserCheck,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -71,7 +76,8 @@ export function UserActions({ user }: UserActionsProps) {
     }
   };
 
-  const isLoading = deactivateMutation.isPending || reactivateMutation.isPending;
+  const isLoading =
+    deactivateMutation.isPending || reactivateMutation.isPending;
 
   return (
     <>
@@ -88,7 +94,7 @@ export function UserActions({ user }: UserActionsProps) {
             <UserCog className="mr-2 h-4 w-4" />
             Edit User
           </DropdownMenuItem>
-          <DropdownMenuItem 
+          <DropdownMenuItem
             onClick={handleResendInvite}
             disabled={resendInviteMutation.isPending}
           >
@@ -127,7 +133,9 @@ export function UserActions({ user }: UserActionsProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {user.isActive ? `Deactivate ${user.name}?` : `Reactivate ${user.name}?`}
+              {user.isActive
+                ? `Deactivate ${user.name}?`
+                : `Reactivate ${user.name}?`}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {user.isActive
@@ -143,7 +151,11 @@ export function UserActions({ user }: UserActionsProps) {
                 user.isActive ? handleDeactivate() : handleReactivate();
                 setShowConfirmDialog(false);
               }}
-              className={user.isActive ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+              className={
+                user.isActive
+                  ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  : ""
+              }
               disabled={isLoading}
             >
               {isLoading ? (
