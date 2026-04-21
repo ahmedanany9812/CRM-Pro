@@ -49,7 +49,7 @@ export async function proxy(request: NextRequest) {
   }
 
   const isProtectedRoute =
-    request.nextUrl.pathname.startsWith("/dashboard") ||
+    request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname.startsWith("/admin") ||
     request.nextUrl.pathname.startsWith("/leads") ||
     request.nextUrl.pathname.startsWith("/reminders");

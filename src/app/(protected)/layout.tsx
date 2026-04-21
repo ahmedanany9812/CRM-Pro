@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { QueryProvider } from "@/providers/queryProvider";
 import { NotificationBell } from "@/components/NotificationBell";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -32,14 +33,14 @@ export default async function DashboardLayout({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/login");
+    redirect("/login?message=Please sign in to continue");
   }
   const profile = await prisma.profile.findUnique({
     where: { id: user.id },
   });
   if (!profile || !profile.isActive) {
     await supabase.auth.signOut();
-    redirect("/login");
+    redirect("/login?message=User profile not found or is inactive");
   }
 
   return (
@@ -50,7 +51,7 @@ export default async function DashboardLayout({
             <SidebarProvider>
               <AppSidebar profile={profile} role={profile.role} />
               <SidebarInset>
-                <header className="flex h-14 shrink-0 items-center justify-between px-4 border-b bg-background/50 backdrop-blur-md sticky top-0 z-10 transition-all duration-200">
+                <header className="flex h-14 shrink-0 items-center justify-between px-4 border-b bg-background/50 backdrop-blur-md sticky top-0 z-50 transition-all duration-200">
                   <div className="flex items-center gap-2">
                     <SidebarTrigger />
                     <Separator orientation="vertical" className="h-6 mx-2" />
@@ -71,6 +72,7 @@ export default async function DashboardLayout({
             </SidebarProvider>
           </TooltipProvider>
           <Toaster />
+          <SonnerToaster position="top-right" expand={true} richColors />
         </QueryProvider>
       </body>
     </html>

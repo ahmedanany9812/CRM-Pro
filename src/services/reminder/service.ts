@@ -13,7 +13,8 @@ import {
   ListLeadRemindersRequest,
   ListMyRemindersRequest,
 } from "./schema";
-import { UserSnapshot, validateLeadAccess } from "./helpers";
+import { UserSnapshot } from "@/utils/authenticateUser";
+import { getRoleBaseWhere, hasLeadAccess } from "@/utils/security";
 import { ReminderStatus } from "@/generated/prisma/enums";
 
 export const createReminder = async (
@@ -64,7 +65,7 @@ export const listLeadReminders = async (
     select: { assignedToId: true },
   });
 
-  if (!lead || !validateLeadAccess(lead.assignedToId, profile)) {
+  if (!lead || !hasLeadAccess(profile, lead.assignedToId)) {
     throw new Error("Unauthorized or lead not found");
   }
 
@@ -77,8 +78,8 @@ export const listMyReminders = async (
 ) => {
   return dbListRemindersForUser(profile.id, {
     ...params,
-    userId: profile.id,
-  } as any);
+    ...getRoleBaseWhere(profile, "lead.assignedToId"),
+  });
 };
 
 export const cancelReminder = async (
@@ -88,7 +89,7 @@ export const cancelReminder = async (
   const reminder = await dbGetReminderById(reminderId);
   if (!reminder) throw new Error("Reminder not found");
 
-  if (!validateLeadAccess(reminder.assignedToId, profile)) {
+  if (!hasLeadAccess(profile, reminder.assignedToId)) {
     throw new Error("Unauthorized");
   }
 
@@ -119,7 +120,7 @@ export const getReminder = async (id: string) => {
 
 export const updateReminderStatus = async (
   id: string,
-  status: any,
+  status: ReminderStatus,
   tx?: Prisma.TransactionClient,
 ) => {
   return dbUpdateReminder(id, { status }, tx);

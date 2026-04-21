@@ -27,7 +27,7 @@ export default async function AdminLayout({
 
   // Strict Admin Gate for the entire /admin subtree
   if (profile.role !== Role.ADMIN) {
-    redirect("/dashboard");
+    redirect("/");
   }
 
   return (

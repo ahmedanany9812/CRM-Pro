@@ -17,10 +17,11 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
+        role: true,
       },
     });
 
-    return NextResponse.json(profiles);
+    return NextResponse.json({ success: true, data: profiles });
   } catch (error: any) {
     console.error("Error fetching users:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

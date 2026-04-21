@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { useCreateLead, useEditLead } from "@/lib/tanstack/useLeads";
+import { toast } from "sonner";
 
 interface LeadFormProps {
   initialData?: LeadInput & { id?: string };
@@ -35,8 +37,14 @@ interface LeadFormProps {
 
 export function LeadForm({ initialData, isEdit = false }: LeadFormProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<{ id: string; name: string }[]>([]);
+
+  const { mutate: createLead, isPending: isCreating } = useCreateLead();
+  const { mutate: editLead, isPending: isEditing } = useEditLead(
+    initialData?.id,
+  );
+
+  const loading = isCreating || isEditing;
 
   const {
     register,
@@ -68,27 +76,26 @@ export function LeadForm({ initialData, isEdit = false }: LeadFormProps) {
   }, []);
 
   const onSubmit = async (data: LeadInput) => {
-    setLoading(true);
-    try {
-      const url = isEdit ? `/api/leads/${initialData?.id}` : "/api/leads";
-      const method = isEdit ? "PATCH" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+    if (isEdit && initialData?.id) {
+      editLead(data, {
+        onSuccess: () => {
+          toast.success("Lead updated successfully");
+          router.push("/leads");
+        },
+        onError: (err: any) => {
+          toast.error(err.message || "Failed to update lead");
+        },
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to save lead");
-      }
-
-      router.push("/leads");
-      router.refresh();
-    } catch (error) {
-      console.error("Error saving lead:", error);
-    } finally {
-      setLoading(false);
+    } else {
+      createLead(data, {
+        onSuccess: () => {
+          toast.success("Lead created successfully");
+          router.push("/leads");
+        },
+        onError: (err: any) => {
+          toast.error(err.message || "Failed to create lead");
+        },
+      });
     }
   };
 

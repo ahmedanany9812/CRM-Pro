@@ -30,6 +30,8 @@ interface CreateLeadDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+import { toast } from "sonner";
+
 export function CreateLeadDialog({
   open,
   onOpenChange,
@@ -54,8 +56,12 @@ export function CreateLeadDialog({
   const onSubmit = (data: CreateLeadRequest) => {
     createLead(data, {
       onSuccess: () => {
+        toast.success("Lead created successfully");
         reset();
         onOpenChange(false);
+      },
+      onError: (error: any) => {
+        toast.error(error.message || "Failed to create lead");
       },
     });
   };

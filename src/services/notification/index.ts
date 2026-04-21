@@ -1,3 +1,4 @@
+import { Profile } from "@/generated/prisma/client";
 import {
   createNotification,
   listNotifications,
@@ -13,9 +14,9 @@ export const NotificationService = {
   create: createNotification,
   list: listNotifications,
   markRead: markReadNotification,
-} as any;
+};
 
-export function markReadNotification(profile: any, id: string) {
+export function markReadNotification(profile: Profile, id: string) {
   return markNotificationRead(profile, id);
 }
 

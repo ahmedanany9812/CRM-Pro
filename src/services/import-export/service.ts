@@ -1,10 +1,10 @@
-import { Profile, Prisma } from "@/generated/prisma/client";
-import { Role } from "@/generated/prisma/enums";
+import { Profile } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { CSVLeadRow, ImportSummary } from "./schema";
 import { dbFindProfileByEmail } from "./db";
 import * as LeadService from "@/services/lead/service";
 import { buildCSVString } from "./helpers";
+import { getRoleBaseWhere } from "@/utils/security";
 
 export async function processImport(
   rows: CSVLeadRow[],
@@ -57,8 +57,7 @@ export async function processImport(
 }
 
 export async function processExport(profile: Profile): Promise<string> {
-  const where: Prisma.LeadWhereInput =
-    profile.role === Role.AGENT ? { assignedToId: profile.id } : {};
+  const where = getRoleBaseWhere(profile);
 
   const leads = await prisma.lead.findMany({
     where,

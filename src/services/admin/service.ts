@@ -73,7 +73,7 @@ export async function createUser(data: CreateUserSchema) {
       type: "magiclink",
       email: data.email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/`,
       },
     });
 

@@ -18,6 +18,13 @@ export async function dbListLeads(
     take: params.pageSize,
     skip: (params.page - 1) * params.pageSize,
     orderBy: { createdAt: "desc" },
+    include: {
+      assignedTo: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
 }
 

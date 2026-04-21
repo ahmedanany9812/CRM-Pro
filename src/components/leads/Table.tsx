@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Table,
@@ -12,10 +14,17 @@ import { TableActions } from "./TableActions";
 import { Lead } from "@/generated/prisma/client";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { LeadStatus } from "@/generated/prisma/enums";
+
+type LeadWithAssignee = Lead & { assignedTo?: { name: string } | null };
 
 interface LeadsTableProps {
   leads: Lead[];
   isLoading?: boolean;
+  selectedIds?: string[];
+  onSelectionChange?: (ids: string[]) => void;
+  userRole?: string;
 }
 
 function formatEnum(value: string) {
@@ -24,7 +33,7 @@ function formatEnum(value: string) {
   return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
-const getStatusVariant = (status: string): any => {
+const getStatusVariant = (status: string): "default" | "destructive" | "outline" | "secondary" | "success" => {
   switch (status) {
     case "WON":
       return "success";
@@ -52,43 +61,102 @@ const getStageColor = (stage: string) => {
   }
 };
 
-export function LeadsTable({ leads, isLoading }: LeadsTableProps) {
+export function LeadsTable({ 
+  leads, 
+  isLoading, 
+  selectedIds = [], 
+  onSelectionChange,
+  userRole 
+}: LeadsTableProps) {
+  const typedLeads = leads as LeadWithAssignee[];
+  const isManagerOrAdmin = userRole === "MANAGER" || userRole === "ADMIN";
+
+  const toggleAll = () => {
+    if (!onSelectionChange) return;
+    if (selectedIds.length === leads.length) {
+      onSelectionChange([]);
+    } else {
+      onSelectionChange(leads.map((l) => l.id));
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    if (!onSelectionChange) return;
+    if (selectedIds.includes(id)) {
+      onSelectionChange(selectedIds.filter((i) => i !== id));
+    } else {
+      onSelectionChange([...selectedIds, id]);
+    }
+  };
+
   return (
     <div className="rounded-xl border bg-card overflow-hidden shadow-sm transition-all">
       <Table>
         <TableHeader className="bg-muted/40">
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="font-bold text-foreground h-12">
-              Name
-            </TableHead>
-            <TableHead className="font-bold text-foreground h-12">
-              Email
-            </TableHead>
-            <TableHead className="font-bold text-foreground h-12">
-              Phone
-            </TableHead>
-            <TableHead className="text-center font-bold text-foreground h-12">
-              Status
-            </TableHead>
-            <TableHead className="text-center font-bold text-foreground h-12">
-              Stage
-            </TableHead>
-            <TableHead className="w-[100px] text-right font-bold text-foreground h-12">
-              Actions
-            </TableHead>
+          <TableRow className="hover:bg-transparent text-xs uppercase tracking-wider text-muted-foreground">
+            {isManagerOrAdmin && (
+              <TableHead className="w-[50px] h-12">
+                <input
+                  type="checkbox"
+                  className="rounded border-gray-300 focus:ring-primary h-4 w-4"
+                  checked={leads.length > 0 && selectedIds.length === leads.length}
+                  onChange={toggleAll}
+                />
+              </TableHead>
+            )}
+            <TableHead className="h-12">Name</TableHead>
+            <TableHead className="h-12">Email</TableHead>
+            <TableHead className="h-12">Phone</TableHead>
+            <TableHead className="text-center h-12">Status</TableHead>
+            <TableHead className="text-center h-12">Stage</TableHead>
+            {isManagerOrAdmin && <TableHead className="h-12">Assigned To</TableHead>}
+            <TableHead className="w-[100px] text-right h-12">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={6} className="h-48 text-center">
-                <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground/50" />
-              </TableCell>
-            </TableRow>
+            [...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                {isManagerOrAdmin && (
+                  <TableCell>
+                    <Skeleton className="h-4 w-4" />
+                  </TableCell>
+                )}
+                <TableCell>
+                  <Skeleton className="h-4 w-[140px]" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-[180px]" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-[100px]" />
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-5 w-16" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-5 w-20" />
+                  </div>
+                </TableCell>
+                {isManagerOrAdmin && (
+                  <TableCell>
+                    <Skeleton className="h-4 w-[100px]" />
+                  </TableCell>
+                )}
+                <TableCell>
+                  <div className="flex justify-end">
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
           ) : leads.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={6}
+                colSpan={isManagerOrAdmin ? 8 : 6}
                 className="h-32 text-center text-muted-foreground"
               >
                 <div className="flex flex-col items-center justify-center gap-1">
@@ -100,11 +168,24 @@ export function LeadsTable({ leads, isLoading }: LeadsTableProps) {
               </TableCell>
             </TableRow>
           ) : (
-            leads.map((lead) => (
+            typedLeads.map((lead) => (
               <TableRow
                 key={lead.id}
-                className="group transition-colors hover:bg-muted/30"
+                className={cn(
+                  "group transition-colors hover:bg-muted/30",
+                  selectedIds.includes(lead.id) && "bg-muted/50"
+                )}
               >
+                {isManagerOrAdmin && (
+                  <TableCell className="py-4">
+                    <input
+                      type="checkbox"
+                      className="rounded border-gray-300 focus:ring-primary h-4 w-4"
+                      checked={selectedIds.includes(lead.id)}
+                      onChange={() => toggleOne(lead.id)}
+                    />
+                  </TableCell>
+                )}
                 <TableCell className="py-4">
                   <Link
                     href={`/leads/${lead.id}`}
@@ -142,6 +223,11 @@ export function LeadsTable({ leads, isLoading }: LeadsTableProps) {
                     </Badge>
                   </div>
                 </TableCell>
+                {isManagerOrAdmin && (
+                  <TableCell className="text-muted-foreground/80 font-medium py-4 text-xs">
+                    {lead.assignedTo?.name || "Unassigned"}
+                  </TableCell>
+                )}
                 <TableCell className="text-right py-4">
                   <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                     <TableActions id={lead.id} />

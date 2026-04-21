@@ -22,6 +22,7 @@ import { EditLeadDialog } from "@/components/leads/EditLeadDialog";
 import { Timeline } from "@/components/leads/lead-details/Timeline";
 import { LeadReminders } from "@/components/leads/lead-details/LeadReminders";
 import { AI } from "@/components/leads/lead-details/AI";
+import { Files } from "@/components/leads/lead-details/Files";
 
 export default function LeadDetailPage() {
   const { id } = useParams() as { id: string };
@@ -199,14 +200,7 @@ export default function LeadDetailPage() {
             </TabsContent>
 
             <TabsContent value="files" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Attached Files</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center py-12">
-                   <p className="text-muted-foreground text-sm">No files uploaded yet.</p>
-                </CardContent>
-              </Card>
+              <Files leadId={id} />
             </TabsContent>
 
             <TabsContent value="ai" className="mt-6">

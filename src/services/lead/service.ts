@@ -1,4 +1,4 @@
-import { Role } from "@/generated/prisma/enums";
+import { Role, ActivityType } from "@/generated/prisma/enums";
 import {
   dbListLeads,
   dbCreateLead,
@@ -8,14 +8,15 @@ import {
 } from "./db";
 import { ListLeadsParams, CreateLeadRequest, EditLeadRequest } from "./schema";
 import { Prisma, Profile } from "@/generated/prisma/client";
-import { ActivityType } from "@/generated/prisma/enums";
+import { ActivityService } from "@/services/activity";
+import { buildLeadChangeActivities } from "./helpers";
+import { prisma } from "@/lib/prisma";
+import { getRoleBaseWhere, hasLeadAccess } from "@/utils/security";
 
 export async function listLeads(profile: Profile, params: ListLeadsParams) {
-  const where: Prisma.LeadWhereInput = {};
-
-  if (profile.role === Role.AGENT) {
-    where.assignedToId = profile.id;
-  }
+  const where: Prisma.LeadWhereInput = {
+    ...getRoleBaseWhere(profile),
+  };
 
   return dbListLeads(where, params);
 }
@@ -44,16 +45,12 @@ export async function getLead(profile: Profile, id: string) {
 
   if (!lead) return null;
 
-  if (profile.role === Role.AGENT && lead.assignedToId !== profile.id) {
+  if (!hasLeadAccess(profile, lead.assignedToId)) {
     throw new Error("Access denied: You can only view leads assigned to you");
   }
 
   return lead;
 }
-
-import { ActivityService } from "@/services/activity";
-import { buildLeadChangeActivities } from "./helpers";
-import { prisma } from "@/lib/prisma";
 
 export async function updateLead(
   profile: Profile,
@@ -64,7 +61,7 @@ export async function updateLead(
 
   if (!existingLead) throw new Error("Lead not found");
 
-  if (profile.role === Role.AGENT && existingLead.assignedToId !== profile.id) {
+  if (!hasLeadAccess(profile, existingLead.assignedToId)) {
     throw new Error("Access denied: You can only update leads assigned to you");
   }
 
@@ -82,7 +79,7 @@ export async function updateLead(
     actorId: profile.id,
     existingLead,
     newLead: data,
-    oldAssigneeName: (existingLead as any).assignedTo?.name,
+    oldAssigneeName: existingLead.assignedTo?.name,
     newAssigneeName,
   });
 
@@ -109,5 +106,58 @@ export async function deleteLead(profile: Profile, id: string) {
     throw new Error("Access denied: Only admins and managers can delete leads");
   }
 
-  return dbDeleteLead(id);
+  return await dbDeleteLead(id);
+}
+
+export async function bulkReassignLeads(
+  profile: Profile,
+  data: { leadIds: string[]; assignToId: string },
+) {
+  if (profile.role !== Role.ADMIN && profile.role !== Role.MANAGER) {
+    throw new Error("Access denied: Only admins and managers can reassign leads");
+  }
+
+  const targetAgent = await prisma.profile.findUnique({
+    where: { id: data.assignToId },
+    select: { id: true, name: true, isActive: true },
+  });
+
+  if (!targetAgent || !targetAgent.isActive) {
+    throw new Error("Target agent not found or inactive");
+  }
+
+  return await prisma.$transaction(async (tx) => {
+    // 1. Fetch current assignments for activity logging in one batch
+    const currentLeads = await tx.lead.findMany({
+      where: { id: { in: data.leadIds } },
+      select: { id: true, assignedToId: true },
+    });
+
+    if (currentLeads.length === 0) return;
+
+    // 2. Perform bulk update
+    await tx.lead.updateMany({
+      where: { id: { in: data.leadIds } },
+      data: { assignedToId: data.assignToId },
+    });
+
+    // 3. Create activities in one batch
+    const activities = currentLeads.map((lead) => ({
+      leadId: lead.id,
+      actorId: profile.id,
+      type: ActivityType.ASSIGNMENT_CHANGE,
+      meta: {
+        from: lead.assignedToId || "unassigned",
+        to: data.assignToId,
+      },
+      content: `Reassigned to ${targetAgent.name}`,
+    }));
+
+    const activityResult = await ActivityService.create(activities, tx);
+    if (!activityResult.success) {
+      throw new Error("Failed to log reassignment activities");
+    }
+
+    return { count: currentLeads.length };
+  });
 }

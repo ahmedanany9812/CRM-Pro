@@ -8,7 +8,8 @@ export async function apiClient<T>(
 ): Promise<T> {
   const { params, headers, ...rest } = options;
 
-  let url = endpoint.startsWith("/") ? endpoint : `/api/${endpoint}`;
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+  let url = endpoint.startsWith("http") ? endpoint : `/api/${cleanEndpoint}`;
   if (params) {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -24,7 +25,9 @@ export async function apiClient<T>(
 
   const response = await fetch(url, {
     headers: {
-      "Content-Type": "application/json",
+      ...(options.body instanceof FormData || (options.body && typeof options.body === 'object' && options.body.constructor?.name === 'FormData') 
+        ? {} 
+        : { "Content-Type": "application/json" }),
       ...headers,
     },
     ...rest,
@@ -34,11 +37,49 @@ export async function apiClient<T>(
     const errorData = await response.json().catch(() => ({}));
     const error = new Error(
       errorData.error || response.statusText || "An error occurred",
-    );
-    (error as any).status = response.status;
-    (error as any).data = errorData;
+    ) as Error & { status?: number; data?: unknown };
+    error.status = response.status;
+    error.data = errorData;
     throw error;
   }
 
   return response.json() as Promise<T>;
 }
+
+export interface Pagination {
+  total: number;
+  page: number;
+  pageSize: number;
+  pages: number;
+}
+
+export interface StandardResponse<T> {
+  success: boolean;
+  data: T;
+  pagination?: Pagination;
+  message?: string;
+  error?: string;
+}
+
+export const api = {
+  get: <T>(url: string, options?: FetchOptions) =>
+    apiClient<T>(url, { ...options, method: "GET" }),
+  post: <T>(url: string, body?: unknown, options?: FetchOptions) =>
+    apiClient<T>(url, {
+      ...options,
+      method: "POST",
+      body: (body instanceof FormData || (body && typeof body === 'object' && (body as any).constructor?.name === 'FormData')) 
+        ? (body as any) 
+        : JSON.stringify(body),
+    }),
+  patch: <T>(url: string, body?: unknown, options?: FetchOptions) =>
+    apiClient<T>(url, {
+      ...options,
+      method: "PATCH",
+      body: (body instanceof FormData || (body && typeof body === 'object' && (body as any).constructor?.name === 'FormData')) 
+        ? (body as any) 
+        : JSON.stringify(body),
+    }),
+  delete: <T>(url: string, options?: FetchOptions) =>
+    apiClient<T>(url, { ...options, method: "DELETE" }),
+};

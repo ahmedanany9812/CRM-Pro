@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { AuthenticationError } from "./authenticateUser";
 import { AdminServiceError } from "@/services/admin";
+import { AttachmentServiceError } from "@/services/attachments/service";
 
-export function handleRouteError(error: any) {
+export function handleRouteError(error: unknown) {
   if (
     error instanceof AuthenticationError ||
-    error instanceof AdminServiceError
+    error instanceof AdminServiceError ||
+    error instanceof AttachmentServiceError
   ) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -13,14 +15,22 @@ export function handleRouteError(error: any) {
     );
   }
 
-  if (error.name === "ZodError" || error.constructor.name === "ZodError") {
+  const err = error as {
+    name?: string;
+    message?: string;
+    statusCode?: number;
+    constructor?: { name: string };
+    flatten?: () => { fieldErrors: Record<string, string[]> };
+  };
+
+  if (err.name === "ZodError" || err.constructor?.name === "ZodError") {
     return NextResponse.json(
-      { success: false, error: error.flatten().fieldErrors },
+      { success: false, error: err.flatten?.().fieldErrors },
       { status: 400 },
     );
   }
 
-  if (error.message === "Lead not found") {
+  if (err.message === "Lead not found") {
     return NextResponse.json(
       { success: false, error: "Lead not found" },
       { status: 404 },
@@ -29,7 +39,7 @@ export function handleRouteError(error: any) {
 
   console.error("Route Error:", error);
   return NextResponse.json(
-    { success: false, error: error.message || "Internal Server Error" },
-    { status: 500 },
+    { success: false, error: err.message || "Internal Server Error" },
+    { status: err.statusCode || 500 },
   );
 }

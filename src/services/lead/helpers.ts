@@ -2,11 +2,17 @@ import { Lead } from "@/generated/prisma/client";
 import { ActivityType } from "@/generated/prisma/enums";
 import { CreateActivityRequest } from "@/services/activity";
 
+type LeadSnapshot = Record<string, unknown> & {
+  assignedTo?: { name: string } | null;
+  status?: string;
+  stage?: string;
+};
+
 interface BuildLeadChangeActivitiesParams {
   leadId: string;
   actorId: string;
-  existingLead: any;
-  newLead: any;
+  existingLead: LeadSnapshot;
+  newLead: LeadSnapshot;
   oldAssigneeName?: string;
   newAssigneeName?: string;
 }

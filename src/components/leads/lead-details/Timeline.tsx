@@ -56,6 +56,8 @@ const activityLabels: Record<ActivityType, string> = {
   [ActivityType.AI_FOLLOWUP_DRAFT_GENERATED]: "AI Followup Draft Generated",
 };
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 export const Timeline = ({ leadId }: { leadId: string }) => {
   const [page, setPage] = useState(1);
   const [noteContent, setNoteContent] = useState("");
@@ -150,9 +152,24 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
 
       <div className="relative mt-8 space-y-0">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
-            <Loader2 className="mb-2 h-8 w-8 animate-spin" />
-            <p className="text-sm">Loading activities...</p>
+          <div className="relative border-l border-border ml-4 pl-8 space-y-8">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="relative">
+                <div className="absolute -left-[48px] flex h-8 w-8 items-center justify-center rounded-full border bg-background ring-4 ring-background">
+                  <Skeleton className="h-4 w-4 rounded-full" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  <Skeleton className="h-16 w-full rounded-md" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : isError ? (
           <div className="flex flex-col items-center justify-center py-10 text-destructive">

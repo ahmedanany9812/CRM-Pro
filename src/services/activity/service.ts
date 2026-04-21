@@ -1,6 +1,6 @@
-import { Prisma, Profile } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { Role } from "@/generated/prisma/enums";
+import { Prisma } from "@/generated/prisma/client";
+import { ActivityType } from "@/generated/prisma/enums";
 import { dbCreateActivities, dbGetLeadActivities } from "./db";
 import {
   createManyActivitiesSchema,
@@ -10,6 +10,7 @@ import {
 import { buildActivityContent } from "./helpers";
 import { buildPagination } from "@/lib/pagination";
 import { UserSnapshot } from "@/utils/authenticateUser";
+import { getRoleBaseWhere } from "@/utils/security";
 
 export async function createActivities(
   request: CreateActivityRequest[],
@@ -24,10 +25,10 @@ export async function createActivities(
   }
 
   const activitiesToCreate: Prisma.ActivityCreateManyInput[] = [];
-  for (const activity of validated.data as any) {
+  for (const activity of validated.data) {
     const content = buildActivityContent(
       activity.type,
-      activity.meta as any,
+      activity.meta as { from: unknown; to: unknown },
       activity.content,
     );
     activitiesToCreate.push({
@@ -35,7 +36,7 @@ export async function createActivities(
       actorId: activity.actorId,
       content,
       type: activity.type,
-      metadata: activity.meta as any,
+      metadata: activity.meta as Prisma.InputJsonValue,
     });
   }
 
@@ -53,13 +54,8 @@ export async function getLeadActivities(
 ) {
   const where: Prisma.ActivityWhereInput = {
     leadId: request.leadId,
+    ...getRoleBaseWhere(userSnapshot, "lead.assignedToId"),
   };
-
-  if (userSnapshot.role === Role.AGENT) {
-    where.lead = {
-      assignedToId: userSnapshot.id,
-    };
-  }
 
   const result = await dbGetLeadActivities(where, {
     page: request.page,
@@ -77,12 +73,11 @@ export async function getLeadActivities(
  */
 export async function createAIActivity(
   request: {
-    type: any;
+    type: ActivityType;
     leadId: string;
     actorId: string;
     content: string;
   },
-  tx?: Prisma.TransactionClient,
 ) {
   return await prisma.activity.create({
     data: {

@@ -1,15 +1,16 @@
-import { SectionCards } from "@/components/dashboard/section-cards";
+import { authenticateUser, AuthenticationError } from "@/utils/authenticateUser";
+import { DashboardPageClient } from "@/components/dashboard/dashboard-page-client";
+import { redirect } from "next/navigation";
 
-export default function DashboardPage() {
-  return (
-    <div className="p-8 space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold">CRM Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Overview to your crm activity
-        </p>
-      </div>
-      <SectionCards />
-    </div>
-  );
+export default async function DashboardPage() {
+  try {
+    const profile = await authenticateUser();
+    return <DashboardPageClient role={profile.role} />;
+  } catch (error) {
+    if (error instanceof AuthenticationError) {
+      redirect(`/login?message=${encodeURIComponent(error.message)}`);
+    }
+    // For other unexpected errors, we can still redirect or let them bubble up
+    redirect("/login?message=An unexpected authentication error occurred");
+  }
 }
