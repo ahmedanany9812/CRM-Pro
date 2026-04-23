@@ -28,6 +28,56 @@ export class AdminServiceError extends Error {
   }
 }
 
+/**
+ * Internal helper to generate a magic link and send an invitation email via Resend.
+ */
+async function sendInvitationEmail(params: {
+  email: string;
+  name: string;
+  type: "signup" | "invite" | "magiclink" | "recovery";
+  isReminder?: boolean;
+}) {
+  const supabaseAdmin = createSupabaseAdmin();
+  const confirmUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/confirm`;
+
+  const { data: linkData, error: linkError } =
+    await supabaseAdmin.auth.admin.generateLink({
+      type: params.type,
+      email: params.email,
+      options: {
+        redirectTo: confirmUrl,
+      },
+    } as Parameters<typeof supabaseAdmin.auth.admin.generateLink>[0]);
+
+  if (linkError || !linkData.properties?.action_link) {
+    console.error("Link Generation Error:", linkError);
+    throw new AdminServiceError(
+      linkError?.message || "Failed to generate authentication link",
+      500,
+    );
+  }
+
+  const magicLink = linkData.properties.action_link;
+  const subject = params.isReminder
+    ? "Reminder: You're invited to Whispyr CRM"
+    : "You're invited to Whispyr CRM";
+
+  try {
+    await resend.emails.send({
+      from: "Whispyr CRM <onboarding@resend.dev>",
+      to: params.email,
+      subject,
+      html: generateInviteEmailHTML(params.name, magicLink, params.isReminder),
+    });
+  } catch (error) {
+    // We log email errors but don't necessarily want to crash the whole flow
+    // especially during user creation where the account is already made.
+    console.error("Email Sending Error:", error);
+  }
+
+  return { magicLink };
+}
+
 export async function createUser(data: CreateUserSchema) {
   const existingUser = await dbFindUserByEmail(data.email);
   if (existingUser) {
@@ -68,30 +118,15 @@ export async function createUser(data: CreateUserSchema) {
     );
   }
 
-  const { data: linkData, error: linkError } =
-    await supabaseAdmin.auth.admin.generateLink({
-      type: "magiclink",
-      email: data.email,
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/`,
-      },
-    });
-
-  if (linkError || !linkData.properties?.action_link) {
-    console.error("Magic Link Error:", linkError);
-    return profile;
-  }
-
   try {
-    const magicLink = linkData.properties.action_link;
-    await resend.emails.send({
-      from: "Whispyr CRM <onboarding@resend.dev>",
-      to: data.email,
-      subject: "You're invited to Whispyr CRM",
-      html: generateInviteEmailHTML(data.name, magicLink),
+    await sendInvitationEmail({
+      email: data.email,
+      name: data.name,
+      type: "invite",
     });
   } catch (error) {
-    console.error("Email Sending Error:", error);
+    console.error("Post-creation invitation error:", error);
+    // User is created, so we return the profile anyway
   }
 
   return profile;
@@ -163,31 +198,17 @@ export async function resendInvite(targetUserId: string) {
     throw new AdminServiceError("User not found", 404);
   }
 
-  const supabaseAdmin = createSupabaseAdmin();
-
-  const { data: linkData, error: linkError } =
-    await supabaseAdmin.auth.admin.generateLink({
-      type: "magiclink",
-      email: user.email,
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
-      },
-    });
-
-  if (linkError || !linkData.properties?.action_link) {
-    console.error("Magic Link Error (Resend Invite):", linkError);
-    throw new AdminServiceError(
-      linkError?.message || "Failed to generate invitation link",
-      500,
-    );
+  if (user.isActive && false) {
+    // If we wanted to prevent resending to active users, we'd do it here.
+    // However, some systems allow resending if the user lost their access.
+    // For now, let's just ensure we use the correct helper.
   }
 
-  const magicLink = linkData.properties.action_link;
-  await resend.emails.send({
-    from: "Whispyr CRM <onboarding@resend.dev>",
-    to: user.email,
-    subject: "Reminder: You're invited to Whispyr CRM",
-    html: generateInviteEmailHTML(user.name, magicLink),
+  await sendInvitationEmail({
+    email: user.email,
+    name: user.name,
+    type: "invite",
+    isReminder: true,
   });
 
   return { success: true, email: user.email };

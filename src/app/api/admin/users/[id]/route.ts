@@ -5,10 +5,10 @@ import { handleRouteError } from "@/utils/handleRouteError";
 import { Role } from "@/generated/prisma/enums";
 
 /**
- * PUT /api/admin/users/[id]
+ * PATCH /api/admin/users/[id]
  * Updates a user's profile. Gated by ADMIN role.
  */
-export async function PUT(
+export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
