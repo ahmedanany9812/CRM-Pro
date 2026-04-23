@@ -30,10 +30,6 @@ const ByStageBreakdown = ({
       <CardHeader className="pb-2 border-b border-border/50 relative z-10">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold tracking-tight">Leads by Stage</CardTitle>
-          <div className="flex items-center gap-2">
-            <div className="h-2.5 w-2.5 rounded-full bg-primary animate-pulse" />
-            <span className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">Live Pipeline</span>
-          </div>
         </div>
       </CardHeader>
       <CardContent className="pt-4">
