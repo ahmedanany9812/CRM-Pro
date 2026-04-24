@@ -28,6 +28,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useCreateLead, useEditLead } from "@/lib/tanstack/useLeads";
+import { useGetUsers } from "@/lib/tanstack/useUsers";
 import { toast } from "sonner";
 
 interface LeadFormProps {
@@ -37,12 +38,13 @@ interface LeadFormProps {
 
 export function LeadForm({ initialData, isEdit = false }: LeadFormProps) {
   const router = useRouter();
-  const [users, setUsers] = useState<{ id: string; name: string }[]>([]);
 
   const { mutate: createLead, isPending: isCreating } = useCreateLead();
   const { mutate: editLead, isPending: isEditing } = useEditLead(
     initialData?.id,
   );
+  const { data: usersData } = useGetUsers();
+  const users = usersData || [];
 
   const loading = isCreating || isEditing;
 
@@ -64,16 +66,6 @@ export function LeadForm({ initialData, isEdit = false }: LeadFormProps) {
     },
   });
 
-  useEffect(() => {
-    fetch("/api/users")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setUsers(data);
-        }
-      })
-      .catch((err) => console.error("Error fetching users:", err));
-  }, []);
 
   const onSubmit = async (data: LeadInput) => {
     if (isEdit && initialData?.id) {

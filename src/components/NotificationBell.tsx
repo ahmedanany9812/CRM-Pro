@@ -17,11 +17,13 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow, isToday, isYesterday, format } from "date-fns";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useMemo } from "react";
 import { toast } from "sonner";
 
 export function NotificationBell() {
+  const router = useRouter();
   const { data, isLoading } = useGetNotifications();
   const markReadMutation = useMarkNotificationRead();
   const markAllReadMutation = useMarkAllNotificationsRead();
@@ -45,8 +47,8 @@ export function NotificationBell() {
           action: latest.leadId ? {
             label: "View Lead",
             onClick: () => {
-              // Use router for SPA navigation if possible, or just let it reload
-              window.location.href = `/leads/${latest.leadId}`;
+              // Use router for SPA navigation
+              router.push(`/leads/${latest.leadId}`);
             }
           } : undefined
         });

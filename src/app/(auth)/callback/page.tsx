@@ -11,111 +11,51 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import { useMutation } from "@tanstack/react-query";
+
 function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  useEffect(() => {
-    const next = searchParams.get("next") ?? "/";
-
-    const handleAuth = async () => {
-      let timeout: NodeJS.Timeout;
-      let subscription: any;
-      console.log("Auth Callback: Starting verification...");
-      console.log("Current URL:", window.location.href);
-
-      // 1. Immediate check for existing session
-      const { data: { session: immediateSession } } = await supabase.auth.getSession();
-      if (immediateSession) {
-        console.log("Auth Callback: Immediate session found, redirecting...");
-        router.push(next);
-        router.refresh();
-        return;
-      }
-
-      // 2. Handle token_hash from query (for invites)
-      const token_hash = searchParams.get("token_hash");
-      const type = searchParams.get("type");
-      console.log("Auth Callback: Query params -", { token_hash: !!token_hash, type });
-
-      if (token_hash && type) {
-        console.log("Auth Callback: Attempting verifyOtp...");
-        const { error } = await supabase.auth.verifyOtp({
-          type: type as any,
-          token_hash,
-        });
-
-        if (!error) {
-          console.log("Auth Callback: verifyOtp successful, redirecting...");
-          cleanup();
-          router.push(next);
-          router.refresh();
-          return;
-        } else {
-          console.error("Auth Callback: verifyOtp error:", error);
-        }
-      }
-
-      // 3. Handle access_token from Hash (Manual fallback)
+  const authMutation = useMutation({
+    mutationFn: async () => {
+      const next = searchParams.get("next") ?? "/";
+      
+      // 1. Check for tokens in hash (Client-side only)
       const hash = window.location.hash.substring(1);
       const hashParams = new URLSearchParams(hash);
       const access_token = hashParams.get("access_token");
       const refresh_token = hashParams.get("refresh_token");
 
       if (access_token && refresh_token) {
-        console.log("Auth Callback: Hash tokens detected, forcing setSession...");
         const { error } = await supabase.auth.setSession({
           access_token,
           refresh_token,
         });
-        if (!error) {
-          console.log("Auth Callback: setSession successful, redirecting...");
-          cleanup();
-          router.push(next);
-          router.refresh();
-          return;
-        } else {
-          console.error("Auth Callback: setSession error:", error);
-        }
+        if (!error) return next;
       }
 
-      // 4. Fallback listener
-      console.log("Auth Callback: Waiting for onAuthStateChange...");
-      const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        console.log("Auth Callback: onAuthStateChange event:", event, !!session);
-        if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
-          console.log("Auth Callback: Auth state change success, redirecting...");
-          cleanup();
-          router.push(next);
-          router.refresh();
-        }
-      });
-      subscription = authSubscription;
+      // 2. Check for existing session as fallback
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) return next;
 
-      // 5. Extended Timeout/Fallback
-      timeout = setTimeout(async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("Auth Callback: Timeout reached, final session check:", !!session);
-        if (session) {
-          cleanup();
-          router.push(next);
-          router.refresh();
-        } else if (!token_hash && !access_token) {
-          console.error("Auth Callback: No session found after 10s");
-          router.push("/login?error=Session could not be established. Link may be expired.");
-        }
-      }, 10000);
+      throw new Error("No session found");
+    },
+    onSuccess: (next) => {
+      router.push(next);
+      router.refresh();
+    },
+    onError: () => {
+      router.push("/login?error=Session could not be established. Link may be expired.");
+    }
+  });
 
-      function cleanup() {
-        if (subscription) subscription.unsubscribe();
-        if (timeout) clearTimeout(timeout);
-      }
-
-      return cleanup;
-    };
-
-    handleAuth();
-  }, [router, searchParams]);
+  // Trigger verification once on mount without raw useEffect if possible, 
+  // but useEffect is still fine for "on mount" in client components.
+  // We'll use a single effect to trigger the mutation.
+  useEffect(() => {
+    authMutation.mutate();
+  }, []);
 
   return (
     <div className="relative flex items-center justify-center h-screen bg-background overflow-hidden">
@@ -138,7 +78,8 @@ function CallbackHandler() {
         </CardHeader>
         <CardContent className="px-8 pb-12 text-center">
           <p className="text-sm text-muted-foreground">
-            Please wait while we verify your invitation and prepare your dashboard.
+            Please wait while we verify your invitation and prepare your
+            dashboard.
           </p>
         </CardContent>
       </Card>

@@ -39,7 +39,7 @@ async function sendInvitationEmail(params: {
 }) {
   const supabaseAdmin = createSupabaseAdmin();
   const { email, type: preferredType } = params;
-  const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/callback`;
+  const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
   const options = { redirectTo: redirectUrl };
 
   let result;

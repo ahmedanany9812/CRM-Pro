@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,46 +13,37 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Lock, User, ShieldCheck } from "lucide-react";
+import { User, ShieldCheck } from "lucide-react";
 import { useProfile, useUpdateProfile } from "@/lib/tanstack/useProfile";
+
+import { updateProfileSchema, type UpdateProfileSchema } from "@/services/profile/schema";
 
 export default function SettingsPage() {
   const { data: profile, isLoading: isFetching } = useProfile();
   const updateProfile = useUpdateProfile();
   
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const form = useForm<UpdateProfileSchema>({
+    resolver: zodResolver(updateProfileSchema),
+    values: {
+      name: profile?.name || "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  // Sync local name state with profile data
-  useEffect(() => {
-    if (profile?.name) {
-      setName(profile.name);
-    }
-  }, [profile]);
-
-  const handleUpdateSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!name.trim()) {
-      toast.error("Name cannot be empty");
-      return;
-    }
-
-    if (password && password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
+  const onSubmit = async (values: UpdateProfileSchema) => {
     try {
       await updateProfile.mutateAsync({ 
-        name, 
-        password: password || undefined, 
-        confirmPassword: confirmPassword || undefined 
+        name: values.name, 
+        password: values.password || undefined, 
+        confirmPassword: values.confirmPassword || undefined 
       });
       toast.success("Settings updated successfully");
-      setPassword("");
-      setConfirmPassword("");
+      form.reset({
+        name: values.name,
+        password: "",
+        confirmPassword: "",
+      });
     } catch (err: any) {
       toast.error(err.message || "Failed to update settings");
     }
@@ -82,18 +73,20 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleUpdateSettings} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="full-name">Full Name</Label>
                   <Input
                     id="full-name"
                     placeholder="Your Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    {...form.register("name")}
                     className="bg-background/50 border-primary/10"
                     disabled={isFetching}
                   />
+                  {form.formState.errors.name && (
+                    <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
+                  )}
                 </div>
                 
                 <div className="space-y-2">
@@ -102,8 +95,7 @@ export default function SettingsPage() {
                     id="password"
                     type="password"
                     placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    {...form.register("password")}
                     className="bg-background/50 border-primary/10"
                   />
                 </div>
@@ -114,10 +106,12 @@ export default function SettingsPage() {
                     id="confirm-password"
                     type="password"
                     placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    {...form.register("confirmPassword")}
                     className="bg-background/50 border-primary/10"
                   />
+                  {form.formState.errors.confirmPassword && (
+                    <p className="text-xs text-destructive">{form.formState.errors.confirmPassword.message}</p>
+                  )}
                 </div>
               </div>
 

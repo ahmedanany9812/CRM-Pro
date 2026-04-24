@@ -22,8 +22,10 @@ import {
 } from "@/components/ui/select";
 import { LeadStage, LeadStatus } from "@/generated/prisma/enums";
 import { Search, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LeadsPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -69,7 +71,7 @@ export default function LeadsPage() {
       <div className="flex h-[400px] flex-col items-center justify-center space-y-4">
         <p className="text-destructive font-semibold">Error loading leads</p>
         <p className="text-muted-foreground text-sm">{(error as any)?.message || "Internal server error"}</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>Retry</Button>
+        <Button variant="outline" onClick={() => router.refresh()}>Retry</Button>
       </div>
     );
   }

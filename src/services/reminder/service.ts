@@ -66,18 +66,9 @@ export const fireReminder = async (reminderId: string) => {
     throw new Error("Reminder not found");
   }
 
-  console.log(`[fireReminder] Starting fire for reminder: ${reminderId}`, {
-    title: reminder.title,
-    assignedToId: reminder.assignedToId,
-    leadId: reminder.leadId,
-  });
-
   return await prisma.$transaction(async (tx) => {
     try {
       // Create notification for the assigned user
-      console.log(
-        `[fireReminder] Creating notification for user: ${reminder.assignedToId}`
-      );
       const notification = await NotificationService.create(
         {
           title: "Reminder Due",
@@ -87,12 +78,9 @@ export const fireReminder = async (reminderId: string) => {
         },
         tx
       );
-      console.log(`[fireReminder] Notification created:`, notification);
 
       // Mark the reminder as FIRED
-      console.log(`[fireReminder] Marking reminder as FIRED: ${reminderId}`);
       await dbUpdateReminderStatus(reminderId, ReminderStatus.FIRED, tx);
-      console.log(`[fireReminder] Reminder marked as FIRED`);
     } catch (error) {
       console.error(`[fireReminder] Error during fire process:`, error);
       throw error;

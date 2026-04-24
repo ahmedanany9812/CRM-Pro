@@ -33,7 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Role } from "@/generated/prisma/enums";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { useState } from "react";
 
 interface EditUserDialogProps {
   open: boolean;
@@ -50,20 +50,11 @@ export function EditUserDialog({
 
   const form = useForm<UpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
-    defaultValues: {
+    values: {
       name: user.name,
       role: user.role,
     },
   });
-
-  useEffect(() => {
-    if (open) {
-      form.reset({
-        name: user.name,
-        role: user.role,
-      });
-    }
-  }, [open, user, form]);
 
   const onSubmit = async (data: UpdateUserSchema) => {
     try {

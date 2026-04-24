@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
         console.error("QStash signature verification failed:", error);
         return NextResponse.json(
           { error: "Invalid signature" },
-          { status: 401 }
+          { status: 401 },
         );
       }
     }
@@ -31,13 +31,10 @@ export async function POST(request: NextRequest) {
     const body = JSON.parse(rawBody);
     const { reminderId } = qstashReminderDueSchema.parse(body);
 
-    console.log(`[Reminder Webhook] Processing reminder: ${reminderId}`);
-
     // 4. Idempotency check (Redis)
     const idempotencyKey = `reminder:fired:${reminderId}`;
     const processed = await redis.get(idempotencyKey);
     if (processed) {
-      console.log(`[Reminder Webhook] Reminder already processed: ${reminderId}`);
       return NextResponse.json({ status: "success", alreadyProcessed: true });
     }
 
@@ -45,16 +42,14 @@ export async function POST(request: NextRequest) {
     await redis.set(idempotencyKey, "processed", "EX", 86400);
 
     // 6. Fire the reminder (creates notification + updates status)
-    console.log(`[Reminder Webhook] Firing reminder: ${reminderId}`);
     await ReminderService.fire(reminderId);
-    console.log(`[Reminder Webhook] Reminder fired successfully: ${reminderId}`);
 
     return NextResponse.json({ status: "success" });
   } catch (error: any) {
     console.error("[Reminder Webhook] Error:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

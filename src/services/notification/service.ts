@@ -11,16 +11,6 @@ export const createNotification = async (
   data: CreateNotificationRequest,
   tx?: Prisma.TransactionClient,
 ) => {
-  console.log(
-    `[NotificationService.create] Creating notification`,
-    {
-      title: data.title,
-      body: data.body,
-      recipientId: data.recipientId,
-      leadId: data.leadId,
-    }
-  );
-
   try {
     const result = await dbCreateNotification(
       {
@@ -31,7 +21,6 @@ export const createNotification = async (
       },
       tx,
     );
-    console.log(`[NotificationService.create] Notification created successfully:`, result);
     return result;
   } catch (error) {
     console.error(

@@ -30,7 +30,14 @@ export function ExportButton({ filters }: { filters?: any }) {
       if (filters?.status) params.append("status", filters.status);
       
       const url = `/api/leads/export${params.toString() ? `?${params.toString()}` : ""}`;
-      window.location.href = url;
+      
+      // Use anchor tag for download to avoid window.location.href
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "leads_export.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
       toast.success("Lead export initiated successfully");
     } catch (error) {

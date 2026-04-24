@@ -29,6 +29,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LogCallDialog } from "./LogCallDialog";
 import { AddNoteDialog } from "./AddNoteDialog";
 import { ActivitySummaryItem } from "@/services/activity/schema";
+import { useRouter } from "next/navigation";
 
 const activityIcons: Record<ActivityType, any> = {
   [ActivityType.LEAD_CREATED]: PlusCircle,
@@ -56,9 +57,11 @@ const activityLabels: Record<ActivityType, string> = {
   [ActivityType.AI_FOLLOWUP_DRAFT_GENERATED]: "AI Followup Draft Generated",
 };
 
+
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Timeline = ({ leadId }: { leadId: string }) => {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [noteContent, setNoteContent] = useState("");
   const [isLogCallOpen, setIsLogCallOpen] = useState(false);
@@ -175,7 +178,7 @@ export const Timeline = ({ leadId }: { leadId: string }) => {
           <div className="flex flex-col items-center justify-center py-10 text-destructive">
             <AlertCircle className="mb-2 h-8 w-8" />
             <p className="text-sm">Failed to load activities</p>
-            <Button variant="link" onClick={() => window.location.reload()}>
+            <Button variant="link" onClick={() => router.refresh()}>
               Retry
             </Button>
           </div>

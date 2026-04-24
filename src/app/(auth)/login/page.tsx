@@ -27,8 +27,10 @@ function LoginForm() {
     const message = searchParams.get("message") || searchParams.get("error");
     if (message) {
       toast.error(message);
+      // Clear the message from the URL using Next.js router
+      router.replace("/login");
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
