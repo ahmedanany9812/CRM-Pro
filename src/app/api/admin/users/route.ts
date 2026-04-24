@@ -11,7 +11,7 @@ import { buildPagination } from "@/lib/pagination";
  */
 export async function GET(req: NextRequest) {
   try {
-    await authenticateUser([Role.ADMIN]);
+    const currentUser = await authenticateUser([Role.ADMIN]);
     
     // Parse pagination params
     const { searchParams } = new URL(req.url);
@@ -22,10 +22,14 @@ export async function GET(req: NextRequest) {
 
     const { users, total } = await AdminService.user.list(params);
     
+    // Exclude current user from the list
+    const filteredUsers = users.filter(user => user.id !== currentUser.id);
+    const adjustedTotal = total - 1;
+    
     return NextResponse.json({ 
       success: true, 
-      data: users,
-      pagination: buildPagination(total, params.page, params.pageSize)
+      data: filteredUsers,
+      pagination: buildPagination(adjustedTotal, params.page, params.pageSize)
     });
   } catch (error) {
     return handleRouteError(error);

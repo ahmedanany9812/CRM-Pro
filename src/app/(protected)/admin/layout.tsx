@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@/generated/prisma/enums";
-import { AdminNav } from "@/components/admin/AdminNav";
 
 export default async function AdminLayout({
   children,
@@ -33,10 +32,6 @@ export default async function AdminLayout({
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex flex-col space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Admin Portal</h2>
-        </div>
-        <AdminNav />
         <div className="pt-4">
           {children}
         </div>

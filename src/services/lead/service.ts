@@ -18,7 +18,33 @@ export async function listLeads(profile: Profile, params: ListLeadsParams) {
     ...getRoleBaseWhere(profile),
   };
 
-  return dbListLeads(where, params);
+  if (params.stage) {
+    where.stage = params.stage;
+  }
+
+  if (params.status) {
+    where.status = params.status;
+  }
+
+  if (params.search) {
+    where.OR = [
+      { name: { contains: params.search, mode: "insensitive" } },
+      { email: { contains: params.search, mode: "insensitive" } },
+      { phone: { contains: params.search, mode: "insensitive" } },
+    ];
+  }
+
+  const { leads, total } = await dbListLeads(where, params);
+
+  return {
+    leads,
+    pagination: {
+      total,
+      page: params.page,
+      pageSize: params.pageSize,
+      pages: Math.ceil(total / params.pageSize),
+    },
+  };
 }
 
 export async function createLead(profile: Profile, data: CreateLeadRequest) {

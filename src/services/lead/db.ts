@@ -13,19 +13,24 @@ export async function dbListLeads(
   where: Prisma.LeadWhereInput,
   params: ListLeadsParams
 ) {
-  return prisma.lead.findMany({
-    where,
-    take: params.pageSize,
-    skip: (params.page - 1) * params.pageSize,
-    orderBy: { createdAt: "desc" },
-    include: {
-      assignedTo: {
-        select: {
-          name: true,
+  const [leads, total] = await Promise.all([
+    prisma.lead.findMany({
+      where,
+      take: params.pageSize,
+      skip: (params.page - 1) * params.pageSize,
+      orderBy: { createdAt: "desc" },
+      include: {
+        assignedTo: {
+          select: {
+            name: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.lead.count({ where }),
+  ]);
+
+  return { leads, total };
 }
 
 export async function dbCreateLead(

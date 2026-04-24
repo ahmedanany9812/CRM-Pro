@@ -4,6 +4,9 @@ import { LeadStage, LeadStatus } from "@/generated/prisma/enums";
 export const listLeadsQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   pageSize: z.coerce.number().min(1).max(100).default(10),
+  search: z.string().optional(),
+  stage: z.nativeEnum(LeadStage).optional(),
+  status: z.nativeEnum(LeadStatus).optional(),
 });
 
 export type ListLeadsParams = z.infer<typeof listLeadsQuerySchema>;

@@ -1,6 +1,7 @@
 import { Profile } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { CSVLeadRow, ImportSummary } from "./schema";
+import { ListLeadsParams } from "@/services/lead/schema";
 import { dbFindProfileByEmail } from "./db";
 import * as LeadService from "@/services/lead/service";
 import { buildCSVString } from "./helpers";
@@ -56,8 +57,29 @@ export async function processImport(
   return { importedCount, totalProcessed: rows.length, errors };
 }
 
-export async function processExport(profile: Profile): Promise<string> {
-  const where = getRoleBaseWhere(profile);
+export async function processExport(
+  profile: Profile,
+  filters: ListLeadsParams = { page: 1, pageSize: 1000 }
+): Promise<string> {
+  const where: any = {
+    ...getRoleBaseWhere(profile),
+  };
+
+  if (filters.stage) {
+    where.stage = filters.stage;
+  }
+
+  if (filters.status) {
+    where.status = filters.status;
+  }
+
+  if (filters.search) {
+    where.OR = [
+      { name: { contains: filters.search, mode: "insensitive" } },
+      { email: { contains: filters.search, mode: "insensitive" } },
+      { phone: { contains: filters.search, mode: "insensitive" } },
+    ];
+  }
 
   const leads = await prisma.lead.findMany({
     where,

@@ -40,17 +40,14 @@ export function DashboardPageClient({ role }: { role: Role }) {
     );
 
   return (
-    <div className="space-y-10 p-6 md:p-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-out relative overflow-hidden">
+    <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-out relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 -z-10 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl opacity-50 pointer-events-none" />
       <div className="absolute bottom-0 left-0 -z-10 h-[400px] w-[400px] rounded-full bg-blue-500/5 blur-3xl opacity-30 pointer-events-none" />
 
-      <div className="space-y-3">
-        <h1 className="text-5xl font-black tracking-tight bg-linear-to-r from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent pb-1">
-          Dashboard
-        </h1>
-        <p className="text-sm text-muted-foreground font-semibold flex items-center gap-2 tracking-wide uppercase">
-          <span className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">
           {subHeaderText}
         </p>
       </div>

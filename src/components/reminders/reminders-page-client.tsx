@@ -103,20 +103,20 @@ export function RemindersPageClient() {
         <div className="mt-6 border rounded-xl overflow-hidden bg-card shadow-sm transition-all">
           <Table>
             <TableHeader className="bg-muted/40">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[180px] font-bold text-foreground">
+              <TableRow className="hover:bg-transparent text-xs uppercase tracking-wider text-muted-foreground">
+                <TableHead className="w-[180px] font-bold h-12">
                   Due Date
                 </TableHead>
-                <TableHead className="font-bold text-foreground">
+                <TableHead className="font-bold h-12">
                   Title
                 </TableHead>
-                <TableHead className="font-bold text-foreground">
+                <TableHead className="font-bold h-12">
                   Lead
                 </TableHead>
-                <TableHead className="font-bold text-foreground">
+                <TableHead className="font-bold h-12">
                   Status
                 </TableHead>
-                <TableHead className="text-right font-bold text-foreground">
+                <TableHead className="text-right font-bold h-12">
                   Actions
                 </TableHead>
               </TableRow>
@@ -239,20 +239,20 @@ export function RemindersPageClient() {
               )}
             </TableBody>
           </Table>
+
+          <div className="px-4 py-3 bg-muted/20 border-t">
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              total={total}
+              startItem={(page - 1) * pageSize + 1}
+              endItem={Math.min(page * pageSize, total)}
+              isLoading={isLoading}
+              setPage={setPage}
+            />
+          </div>
         </div>
       </Tabs>
-
-      <div className="mt-4">
-        <Pagination
-          page={page}
-          pageCount={pageCount}
-          total={total}
-          startItem={(page - 1) * pageSize + 1}
-          endItem={Math.min(page * pageSize, total)}
-          isLoading={isLoading}
-          setPage={setPage}
-        />
-      </div>
     </div>
   );
 }

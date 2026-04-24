@@ -17,7 +17,7 @@ const navItems = [
     icon: FileUp,
   },
   {
-    title: "Export Tools",
+    title: "Export Leads",
     href: "/admin/export",
     icon: FileDown,
   },

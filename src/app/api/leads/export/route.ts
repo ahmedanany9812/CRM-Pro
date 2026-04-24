@@ -4,6 +4,8 @@ import { authenticateUser } from "@/utils/authenticateUser";
 import { handleRouteError } from "@/utils/handleRouteError";
 import { Role } from "@/generated/prisma/enums";
 
+import { listLeadsQuerySchema } from "@/services/lead/schema";
+
 /**
  * GET /api/leads/export
  * Exports leads to CSV. 
@@ -13,7 +15,15 @@ export async function GET(req: NextRequest) {
   try {
     const profile = await authenticateUser([Role.AGENT, Role.MANAGER, Role.ADMIN]);
     
-    const csv = await ImportExportService.export.process(profile);
+    // Parse filters from URL
+    const { searchParams } = new URL(req.url);
+    const filters = listLeadsQuerySchema.parse({
+      search: searchParams.get("search") || undefined,
+      stage: searchParams.get("stage") || undefined,
+      status: searchParams.get("status") || undefined,
+    });
+
+    const csv = await ImportExportService.export.process(profile, filters);
     
     const date = new Date().toISOString().split("T")[0];
     const filename = `leads-export-${date}.csv`;

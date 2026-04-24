@@ -1,6 +1,14 @@
 "use client";
 
-import { Calendar, LayoutDashboard, User, Users, Zap } from "lucide-react";
+import {
+  Calendar,
+  FileDown,
+  FileUp,
+  LayoutDashboard,
+  User,
+  Users,
+  Zap,
+} from "lucide-react";
 import { Separator } from "../ui/separator";
 import {
   Sidebar,
@@ -35,7 +43,8 @@ export default function AppSidebar({
 
   const adminSidebarItems = [
     { label: "Users", href: "/admin/users", icon: User },
-    { label: "Import", href: "/admin/import", icon: Users },
+    { label: "Import Leads", href: "/admin/import", icon: FileUp },
+    { label: "Export Leads", href: "/admin/export", icon: FileDown },
   ];
 
   const isActive = (href: string) => {

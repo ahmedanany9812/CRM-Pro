@@ -23,10 +23,13 @@ export async function GET(request: Request) {
     const params = listLeadsQuerySchema.parse({
       page: searchParams.get("page"),
       pageSize: searchParams.get("pageSize"),
+      search: searchParams.get("search") || undefined,
+      stage: searchParams.get("stage") || undefined,
+      status: searchParams.get("status") || undefined,
     });
 
-    const leads = await listLeads(profile, params);
-    return NextResponse.json({ success: true, data: leads });
+    const { leads, pagination } = await listLeads(profile, params);
+    return NextResponse.json({ success: true, data: leads, pagination });
   } catch (error: any) {
     if (error instanceof AuthenticationError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });

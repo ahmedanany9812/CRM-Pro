@@ -50,13 +50,13 @@ export function UsersTable({
   return (
     <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
       <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/50 hover:bg-muted/50">
-            <TableHead className="w-[250px] font-semibold">User</TableHead>
-            <TableHead className="font-semibold">Role</TableHead>
-            <TableHead className="font-semibold">Status</TableHead>
-            <TableHead className="font-semibold">Joined</TableHead>
-            <TableHead className="text-right font-semibold">Actions</TableHead>
+        <TableHeader className="bg-muted/40">
+          <TableRow className="hover:bg-transparent text-xs uppercase tracking-wider text-muted-foreground">
+            <TableHead className="w-[250px] font-bold h-12">User</TableHead>
+            <TableHead className="font-bold h-12">Role</TableHead>
+            <TableHead className="font-bold h-12">Status</TableHead>
+            <TableHead className="font-bold h-12">Joined</TableHead>
+            <TableHead className="text-right font-bold h-12">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -73,11 +73,11 @@ export function UsersTable({
             users.map((user) => (
               <TableRow
                 key={user.id}
-                className="hover:bg-muted/30 transition-colors"
+                className="group transition-colors hover:bg-muted/30"
               >
-                <TableCell>
+                <TableCell className="py-4">
                   <div className="flex flex-col">
-                    <span className="font-medium text-foreground">
+                    <span className="font-bold text-foreground">
                       {user.name}
                     </span>
                     <span className="text-xs text-muted-foreground">
@@ -85,34 +85,36 @@ export function UsersTable({
                     </span>
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="py-4">
                   <Badge
                     variant={roleBadgeVariant[user.role]}
-                    className="font-medium px-2 py-0.5"
+                    className="font-bold uppercase tracking-wider text-[10px] px-2.5 py-0.5 rounded-md"
                   >
                     {user.role}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="py-4">
                   {user.isActive ? (
                     <div className="flex items-center gap-1.5 text-green-600">
                       <div className="h-2 w-2 rounded-full bg-green-600" />
-                      <span className="text-xs font-semibold">Active</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Active</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-1.5 text-muted-foreground">
                       <div className="h-2 w-2 rounded-full bg-muted-foreground" />
-                      <span className="text-xs font-semibold">Inactive</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Inactive</span>
                     </div>
                   )}
                 </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
+                <TableCell className="py-4 text-xs font-medium text-muted-foreground/80">
                   {formatDistanceToNow(new Date(user.createdAt), {
                     addSuffix: true,
                   })}
                 </TableCell>
-                <TableCell className="text-right">
-                  <UserActions user={user} />
+                <TableCell className="text-right py-4">
+                  <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                    <UserActions user={user} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))
@@ -120,7 +122,7 @@ export function UsersTable({
         </TableBody>
       </Table>
 
-      <div className="flex items-center justify-end space-x-4 px-4 py-3 border-t bg-muted/20">
+      <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20">
         <div className="text-sm text-muted-foreground">
           Showing{" "}
           <span className="font-medium text-foreground">{users.length}</span> of{" "}
@@ -138,7 +140,8 @@ export function UsersTable({
             Previous
           </Button>
           <div className="flex items-center justify-center min-w-[32px] text-sm font-medium">
-            {page}
+            {page} <span className="text-muted-foreground mx-1">/</span>{" "}
+            {Math.ceil(total / pageSize) || 1}
           </div>
           <Button
             variant="outline"

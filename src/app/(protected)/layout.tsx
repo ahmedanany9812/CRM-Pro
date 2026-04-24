@@ -33,7 +33,7 @@ export default async function DashboardLayout({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/login?message=Please sign in to continue");
+    redirect("/login");
   }
   const profile = await prisma.profile.findUnique({
     where: { id: user.id },

@@ -130,7 +130,11 @@ export function CSVImporter() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-xl font-semibold">Step 1: Upload Your CSV</h2>
+        <h2 className="text-xl font-semibold">
+          {state === "idle" || state === "parsing" 
+            ? "Step 1: Upload Your CSV" 
+            : "Step 2: Review & Finalize Import"}
+        </h2>
         <Button
           variant="outline"
           size="sm"

@@ -34,20 +34,37 @@ export class AdminServiceError extends Error {
 async function sendInvitationEmail(params: {
   email: string;
   name: string;
-  type: "signup" | "invite" | "magiclink" | "recovery";
+  type: "invite" | "magiclink" | "recovery";
   isReminder?: boolean;
 }) {
   const supabaseAdmin = createSupabaseAdmin();
-  const confirmUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/confirm`;
+  const { email, type: preferredType } = params;
+  const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/callback`;
+  const options = { redirectTo: redirectUrl };
 
-  const { data: linkData, error: linkError } =
-    await supabaseAdmin.auth.admin.generateLink({
-      type: params.type,
-      email: params.email,
-      options: {
-        redirectTo: confirmUrl,
-      },
-    } as Parameters<typeof supabaseAdmin.auth.admin.generateLink>[0]);
+  let result;
+  try {
+    // We always prefer 'invite' type for fresh users to get token_hash benefits
+    result = await supabaseAdmin.auth.admin.generateLink({ 
+      type: preferredType, 
+      email, 
+      options 
+    });
+    
+    if (result.error?.message?.includes("already been registered")) {
+      // Fallback to magiclink if user exists
+      result = await supabaseAdmin.auth.admin.generateLink({ 
+        type: "magiclink", 
+        email, 
+        options 
+      });
+    }
+  } catch (err) {
+    console.error("Link Generation Exception:", err);
+    throw new AdminServiceError("Failed to generate authentication link", 500);
+  }
+
+  const { data: linkData, error: linkError } = result;
 
   if (linkError || !linkData.properties?.action_link) {
     console.error("Link Generation Error:", linkError);
@@ -70,8 +87,6 @@ async function sendInvitationEmail(params: {
       html: generateInviteEmailHTML(params.name, magicLink, params.isReminder),
     });
   } catch (error) {
-    // We log email errors but don't necessarily want to crash the whole flow
-    // especially during user creation where the account is already made.
     console.error("Email Sending Error:", error);
   }
 
@@ -90,7 +105,7 @@ export async function createUser(data: CreateUserSchema) {
     await supabaseAdmin.auth.admin.createUser({
       email: data.email,
       password: tempPassword,
-      email_confirm: true,
+      email_confirm: false,
       user_metadata: { name: data.name },
     });
 
@@ -126,7 +141,6 @@ export async function createUser(data: CreateUserSchema) {
     });
   } catch (error) {
     console.error("Post-creation invitation error:", error);
-    // User is created, so we return the profile anyway
   }
 
   return profile;

@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { TableActions } from "./TableActions";
 import { Lead } from "@/generated/prisma/client";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LeadStatus } from "@/generated/prisma/enums";
 
@@ -25,6 +26,10 @@ interface LeadsTableProps {
   selectedIds?: string[];
   onSelectionChange?: (ids: string[]) => void;
   userRole?: string;
+  page: number;
+  total: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
 }
 
 function formatEnum(value: string) {
@@ -66,7 +71,11 @@ export function LeadsTable({
   isLoading, 
   selectedIds = [], 
   onSelectionChange,
-  userRole 
+  userRole,
+  page,
+  total,
+  pageSize,
+  onPageChange
 }: LeadsTableProps) {
   const typedLeads = leads as LeadWithAssignee[];
   const isManagerOrAdmin = userRole === "MANAGER" || userRole === "ADMIN";
@@ -238,6 +247,40 @@ export function LeadsTable({
           )}
         </TableBody>
       </Table>
+
+      {!isLoading && leads.length > 0 && (
+        <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20">
+          <div className="text-sm text-muted-foreground">
+            Showing <span className="font-medium text-foreground">{leads.length}</span> of{" "}
+            <span className="font-medium text-foreground">{total}</span> leads
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange?.(page - 1)}
+              disabled={page === 1}
+              className="h-8 gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <div className="flex items-center justify-center min-w-[32px] text-sm font-medium">
+              {page} <span className="text-muted-foreground mx-1">/</span> {Math.ceil(total / pageSize) || 1}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange?.(page + 1)}
+              disabled={page * pageSize >= total}
+              className="h-8 gap-1"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
