@@ -3,6 +3,8 @@ import { Roboto } from "next/font/google";
 import "../globals.css";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
+import { QueryProvider } from "@/providers/queryProvider";
+
 const roboto = Roboto({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
@@ -21,7 +23,9 @@ export default function AuthLayout({
   return (
     <html lang="en">
       <body className={`${roboto.className} antialiased`}>
-        {children}
+        <QueryProvider>
+          {children}
+        </QueryProvider>
         <SonnerToaster position="top-right" richColors />
       </body>
     </html>
