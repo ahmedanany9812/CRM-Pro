@@ -17,7 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { 
   Loader2, ArrowLeft, Mail, Phone, Calendar, User, Edit2, UserPlus, 
-  CheckCircle2, Clock, UserMinus, Copy, TrendingUp, History, Sparkles 
+  CheckCircle2, Clock, UserMinus, Copy, TrendingUp, History, Sparkles, XCircle
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -217,43 +217,103 @@ export default function LeadDetailPage() {
                         Pipeline Progress
                       </CardTitle>
                     </div>
-                    <Badge variant="outline" className="font-bold uppercase tracking-wider text-[10px] bg-primary/5 text-primary border-primary/20">
-                      Active Lead
+                    <Badge 
+                      variant={lead.status === "WON" ? "success" : lead.status === "LOST" ? "destructive" : "secondary"}
+                      className={cn(
+                        "font-bold uppercase tracking-wider text-[10px] border-none",
+                        lead.status === "OPEN" && "bg-primary/10 text-primary"
+                      )}
+                    >
+                      {lead.status === "OPEN" ? "Active Lead" : `Lead ${lead.status}`}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="py-8">
-                  <div className="relative flex justify-between w-full">
+                <CardContent className="py-8 space-y-8">
+                  <div className="relative flex justify-between w-full px-4">
                     {/* Progress Line */}
                     <div className="absolute top-1/2 left-0 w-full h-0.5 bg-muted -translate-y-1/2 z-0" />
                     
-                    {["NEW", "CONTACTED", "QUALIFIED", "NEGOTIATING", "WON/LOST"].map((step, idx) => {
+                    {["NEW", "CONTACTED", "QUALIFIED", "NEGOTIATING", "FINAL"].map((step, idx) => {
                       const stages = ["NEW", "CONTACTED", "QUALIFIED", "NEGOTIATING"];
                       const currentStageIdx = stages.indexOf(lead.stage);
-                      const isCompleted = idx <= currentStageIdx;
-                      const isCurrent = idx === currentStageIdx;
+                      const isCompleted = idx <= currentStageIdx || (idx === 4 && lead.status !== "OPEN");
+                      const isCurrent = idx === currentStageIdx && lead.status === "OPEN";
+                      const isFinal = idx === 4;
                       
+                      // Special handling for the final circle
+                      let circleIcon = <span className="text-xs font-bold">{idx + 1}</span>;
+                      let circleClass = "";
+                      
+                      if (isFinal) {
+                        if (lead.status === "WON") {
+                          circleIcon = <CheckCircle2 className="h-5 w-5" />;
+                          circleClass = "bg-green-500 border-green-200 text-white";
+                        } else if (lead.status === "LOST") {
+                          circleIcon = <XCircle className="h-5 w-5" />;
+                          circleClass = "bg-red-500 border-red-200 text-white";
+                        }
+                      } else if (isCompleted && !isCurrent) {
+                        circleIcon = <CheckCircle2 className="h-5 w-5" />;
+                      }
+
                       return (
                         <div key={step} className="relative z-10 flex flex-col items-center gap-3">
                           <div className={cn(
                             "h-10 w-10 rounded-full border-4 flex items-center justify-center transition-all duration-300 shadow-sm",
                             isCompleted ? "bg-primary border-primary/20 text-primary-foreground" : "bg-background border-muted text-muted-foreground",
-                            isCurrent && "ring-4 ring-primary/20 scale-110"
+                            isCurrent && "ring-4 ring-primary/20 scale-110",
+                            circleClass
                           )}>
-                            {isCompleted && !isCurrent ? (
-                              <CheckCircle2 className="h-5 w-5" />
-                            ) : (
-                              <span className="text-xs font-bold">{idx + 1}</span>
-                            )}
+                            {circleIcon}
                           </div>
                           <span className={cn(
                             "text-[10px] font-bold uppercase tracking-wider",
-                            isCompleted ? "text-primary" : "text-muted-foreground"
-                          )}>{step}</span>
+                            isCompleted ? (isFinal ? (lead.status === "WON" ? "text-green-600" : "text-red-600") : "text-primary") : "text-muted-foreground"
+                          )}>
+                            {isFinal ? (lead.status === "OPEN" ? "WON / LOST" : lead.status) : step}
+                          </span>
                         </div>
                       );
                     })}
                   </div>
+
+                  {/* Action Buttons for Final Stages */}
+                  {lead.stage === "NEGOTIATING" && lead.status === "OPEN" && (
+                    <div className="flex items-center justify-center gap-4 pt-4 animate-in fade-in slide-in-from-top-2 duration-500">
+                      <Button 
+                        size="sm" 
+                        className="bg-green-600 hover:bg-green-700 text-white font-bold uppercase tracking-widest text-[10px] h-9 px-6 shadow-lg shadow-green-500/20"
+                        onClick={() => editLeadMutation.mutate({ status: "WON" })}
+                        disabled={editLeadMutation.isPending}
+                      >
+                        <CheckCircle2 className="mr-2 h-3.5 w-3.5" />
+                        Mark as Won
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        className="font-bold uppercase tracking-widest text-[10px] h-9 px-6 shadow-lg shadow-red-500/20"
+                        onClick={() => editLeadMutation.mutate({ status: "LOST" })}
+                        disabled={editLeadMutation.isPending}
+                      >
+                        <XCircle className="mr-2 h-3.5 w-3.5" />
+                        Mark as Lost
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Feedback for Completed Leads */}
+                  {lead.status !== "OPEN" && (
+                    <div className="flex items-center justify-center gap-2 pt-4">
+                      <div className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-full border text-[10px] font-bold uppercase tracking-widest",
+                        lead.status === "WON" ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700"
+                      )}>
+                        {lead.status === "WON" ? <TrendingUp className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                        Lead was closed as {lead.status}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

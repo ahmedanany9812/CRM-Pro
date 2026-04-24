@@ -10,7 +10,7 @@ export function useGetNotifications(
     queryFn: () =>
       apiClient<ListNotificationsResponseData>("notifications", { params }),
     select: (response: any) => response.data,
-    refetchInterval: 30000,
+    refetchInterval: 1000 * 5, // every 5 seconds
   });
 }
 
@@ -21,6 +21,19 @@ export function useMarkNotificationRead() {
     mutationFn: (id: string) =>
       apiClient(`notifications/${id}/read`, {
         method: "PATCH",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+export function useMarkAllNotificationsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () =>
+      apiClient("notifications/read-all", {
+        method: "POST",
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });

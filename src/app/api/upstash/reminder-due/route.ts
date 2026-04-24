@@ -1,57 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
 import { ReminderService } from "@/services/reminder";
-import { NotificationService } from "@/services/notification";
-import { ReminderStatus } from "@/generated/prisma/enums";
+import { verifyQstashSignature } from "@/lib/qstash";
+import { qstashReminderDueSchema } from "@/services/reminder";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { reminderId } = body;
+    // 1. Get raw body for signature verification
+    const rawBody = await request.text();
 
-    if (!reminderId) {
-      return NextResponse.json({ error: "Missing reminderId" }, { status: 400 });
+    // 2. Verify QStash signature (skip in development if no signing keys)
+    const isProduction = process.env.NODE_ENV === "production";
+    const hasSigningKeys =
+      process.env.QSTASH_CURRENT_SIGNING_KEY &&
+      process.env.QSTASH_NEXT_SIGNING_KEY;
+
+    if (isProduction || hasSigningKeys) {
+      try {
+        await verifyQstashSignature(request, rawBody);
+      } catch (error) {
+        console.error("QStash signature verification failed:", error);
+        return NextResponse.json(
+          { error: "Invalid signature" },
+          { status: 401 }
+        );
+      }
     }
 
-    // 1. Idempotency Check (Redis)
+    // 3. Parse and validate the body
+    const body = JSON.parse(rawBody);
+    const { reminderId } = qstashReminderDueSchema.parse(body);
+
+    console.log(`[Reminder Webhook] Processing reminder: ${reminderId}`);
+
+    // 4. Idempotency check (Redis)
     const idempotencyKey = `reminder:fired:${reminderId}`;
     const processed = await redis.get(idempotencyKey);
     if (processed) {
-      return NextResponse.json({ success: true, alreadyProcessed: true });
+      console.log(`[Reminder Webhook] Reminder already processed: ${reminderId}`);
+      return NextResponse.json({ status: "success", alreadyProcessed: true });
     }
 
-    // 2. Fetch Reminder
-    const reminder = await ReminderService.get(reminderId);
-    if (!reminder) {
-      return NextResponse.json({ error: "Reminder not found" }, { status: 404 });
-    }
+    // 5. Mark as processed in Redis BEFORE processing (24h TTL)
+    await redis.set(idempotencyKey, "processed", "EX", 86400);
 
-    // If it's already fired or cancelled, skip
-    if (reminder.status !== ReminderStatus.PENDING) {
-      return NextResponse.json({ success: true, status: reminder.status });
-    }
+    // 6. Fire the reminder (creates notification + updates status)
+    console.log(`[Reminder Webhook] Firing reminder: ${reminderId}`);
+    await ReminderService.fire(reminderId);
+    console.log(`[Reminder Webhook] Reminder fired successfully: ${reminderId}`);
 
-    // 3. Process Fire (Transactional)
-    await prisma.$transaction(async (tx) => {
-      // Mark as processed in Redis (24h TTL)
-      await redis.set(idempotencyKey, "processed", "EX", 86400);
-
-      // Create Notification
-      await NotificationService.create({
-        title: "Reminder Due",
-        body: reminder.title,
-        recipientId: reminder.assignedToId,
-        leadId: reminder.leadId,
-      }, tx);
-
-      // Mark Reminder as FIRED
-      await ReminderService.updateStatus(reminderId, ReminderStatus.FIRED, tx);
-    });
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ status: "success" });
   } catch (error: any) {
-    console.error("Error in reminder webhook:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("[Reminder Webhook] Error:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

@@ -3,6 +3,7 @@ import {
   createNotification,
   listNotifications,
   markNotificationRead,
+  markAllNotificationsRead,
 } from "./service";
 import {
   createNotificationSchema,
@@ -14,10 +15,15 @@ export const NotificationService = {
   create: createNotification,
   list: listNotifications,
   markRead: markReadNotification,
+  markAllRead: markAllReadNotification,
 };
 
 export function markReadNotification(profile: Profile, id: string) {
   return markNotificationRead(profile, id);
+}
+
+export function markAllReadNotification(profile: Profile) {
+  return markAllNotificationsRead(profile);
 }
 
 export const NotificationSchema = {

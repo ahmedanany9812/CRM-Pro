@@ -69,3 +69,18 @@ export const dbMarkNotificationReadForRecipient = async (
     },
   });
 };
+
+export const dbMarkAllNotificationsReadForRecipient = async (
+  recipientId: string,
+) => {
+  return prisma.notification.updateMany({
+    where: {
+      recipientId,
+      readState: NotificationReadState.UNREAD,
+    },
+    data: {
+      readState: NotificationReadState.READ,
+      readAt: new Date(),
+    },
+  });
+};

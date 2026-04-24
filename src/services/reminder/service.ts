@@ -1,57 +1,102 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
 import {
-  dbUpsertReminder,
-  dbUpdateReminder,
+  dbCreateReminder,
+  dbUpdateReminderQstashMessageId,
   dbGetReminderById,
+  dbUpdateReminderStatus,
   dbListRemindersForLead,
   dbListRemindersForUser,
 } from "./db";
 import { qstash } from "@/lib/qstash";
 import {
   CreateReminderRequest,
+  QStashReminderDueRequest,
   ListLeadRemindersRequest,
   ListMyRemindersRequest,
 } from "./schema";
 import { UserSnapshot } from "@/utils/authenticateUser";
-import { getRoleBaseWhere, hasLeadAccess } from "@/utils/security";
+import { validateLeadAccess } from "./helpers";
 import { ReminderStatus } from "@/generated/prisma/enums";
+import { NotificationService } from "@/services/notification";
 
 export const createReminder = async (
   profile: UserSnapshot,
   leadId: string,
   data: CreateReminderRequest,
 ) => {
+  const assignedToId = data.assignedToId ?? profile.id;
+
+  // Verify the user has access to create reminders for this person
+  if (!(await validateLeadAccess(assignedToId, profile))) {
+    throw new Error("Unauthorized: Cannot create reminder for this user");
+  }
+
   return await prisma.$transaction(async (tx) => {
-    const reminder = await dbUpsertReminder(
+    // Step 1: Create the reminder in the database
+    const reminder = await dbCreateReminder(
       {
         title: data.title,
         dueAt: data.dueAt,
+        assignedTo: { connect: { id: assignedToId } },
         lead: { connect: { id: leadId } },
-        assignedTo: { connect: { id: profile.id } },
       },
       tx,
     );
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || "";
+    // Step 2: Schedule the QStash callback
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_API_URL || "";
     if (!baseUrl) {
-      console.warn(
-        "No base URL found for QStash callback. Reminders will not fire correctly.",
-      );
+      throw new Error("NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_API_URL environment variable must be set");
     }
 
     const { messageId } = await qstash.publishJSON({
       url: `${baseUrl}/api/upstash/reminder-due`,
-      body: { reminderId: reminder.id },
-      notBefore: Math.floor(data.dueAt.getTime() / 1000),
+      body: { reminderId: reminder.id } as QStashReminderDueRequest,
+      notBefore: Math.floor(reminder.dueAt.getTime() / 1000),
     });
 
-    return await dbUpdateReminder(
-      reminder.id,
-      { qstashMessageId: messageId },
-      tx,
-    );
+    // Step 3: Save the QStash message ID back to the reminder
+    return await dbUpdateReminderQstashMessageId(reminder.id, messageId, tx);
+  });
+};
+
+export const fireReminder = async (reminderId: string) => {
+  const reminder = await dbGetReminderById(reminderId);
+  if (!reminder) {
+    throw new Error("Reminder not found");
+  }
+
+  console.log(`[fireReminder] Starting fire for reminder: ${reminderId}`, {
+    title: reminder.title,
+    assignedToId: reminder.assignedToId,
+    leadId: reminder.leadId,
+  });
+
+  return await prisma.$transaction(async (tx) => {
+    try {
+      // Create notification for the assigned user
+      console.log(
+        `[fireReminder] Creating notification for user: ${reminder.assignedToId}`
+      );
+      const notification = await NotificationService.create(
+        {
+          title: "Reminder Due",
+          body: reminder.title,
+          recipientId: reminder.assignedToId,
+          leadId: reminder.leadId,
+        },
+        tx
+      );
+      console.log(`[fireReminder] Notification created:`, notification);
+
+      // Mark the reminder as FIRED
+      console.log(`[fireReminder] Marking reminder as FIRED: ${reminderId}`);
+      await dbUpdateReminderStatus(reminderId, ReminderStatus.FIRED, tx);
+      console.log(`[fireReminder] Reminder marked as FIRED`);
+    } catch (error) {
+      console.error(`[fireReminder] Error during fire process:`, error);
+      throw error;
+    }
   });
 };
 
@@ -65,8 +110,13 @@ export const listLeadReminders = async (
     select: { assignedToId: true },
   });
 
-  if (!lead || !hasLeadAccess(profile, lead.assignedToId)) {
-    throw new Error("Unauthorized or lead not found");
+  if (!lead) {
+    throw new Error("Lead not found");
+  }
+
+  // Check access
+  if (profile.role !== "ADMIN" && profile.role !== "MANAGER" && lead.assignedToId !== profile.id) {
+    throw new Error("Unauthorized");
   }
 
   return dbListRemindersForLead(leadId, params);
@@ -76,10 +126,7 @@ export const listMyReminders = async (
   profile: UserSnapshot,
   params: ListMyRemindersRequest,
 ) => {
-  return dbListRemindersForUser(profile.id, {
-    ...params,
-    ...getRoleBaseWhere(profile, "lead.assignedToId"),
-  });
+  return dbListRemindersForUser(profile.id, params);
 };
 
 export const cancelReminder = async (
@@ -89,7 +136,8 @@ export const cancelReminder = async (
   const reminder = await dbGetReminderById(reminderId);
   if (!reminder) throw new Error("Reminder not found");
 
-  if (!hasLeadAccess(profile, reminder.assignedToId)) {
+  // Check access
+  if (profile.role !== "ADMIN" && profile.role !== "MANAGER" && reminder.assignedToId !== profile.id) {
     throw new Error("Unauthorized");
   }
 
@@ -106,22 +154,14 @@ export const cancelReminder = async (
       }
     }
 
-    return dbUpdateReminder(
-      reminderId,
-      { status: ReminderStatus.CANCELLED },
-      tx,
-    );
+    return dbUpdateReminderStatus(reminderId, ReminderStatus.CANCELLED, tx);
   });
 };
 
-export const getReminder = async (id: string) => {
-  return dbGetReminderById(id);
-};
-
-export const updateReminderStatus = async (
-  id: string,
-  status: ReminderStatus,
-  tx?: Prisma.TransactionClient,
-) => {
-  return dbUpdateReminder(id, { status }, tx);
-};
+export const ReminderService = {
+  create: createReminder,
+  fire: fireReminder,
+  listLead: listLeadReminders,
+  listMy: listMyReminders,
+  cancel: cancelReminder,
+} as const;

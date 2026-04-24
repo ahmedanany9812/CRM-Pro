@@ -2,12 +2,24 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { ReminderStatus } from "@/generated/prisma/enums";
 
-export const dbUpsertReminder = async (
-  data: Prisma.ReminderCreateInput,
+export const dbCreateReminder = async (
+  reminder: Prisma.ReminderCreateInput,
   tx?: Prisma.TransactionClient,
 ) => {
   const client = tx ?? prisma;
-  return client.reminder.create({ data });
+  return client.reminder.create({ data: reminder });
+};
+
+export const dbUpdateReminderQstashMessageId = async (
+  reminderId: string,
+  qstashMessageId: string,
+  tx?: Prisma.TransactionClient,
+) => {
+  const client = tx ?? prisma;
+  return client.reminder.update({
+    where: { id: reminderId },
+    data: { qstashMessageId },
+  });
 };
 
 export const dbGetReminderById = async (id: string) => {
@@ -15,6 +27,7 @@ export const dbGetReminderById = async (id: string) => {
     where: { id },
     include: {
       lead: { select: { id: true, name: true } },
+      assignedTo: { select: { id: true, name: true } },
     },
   });
 };
@@ -28,6 +41,18 @@ export const dbUpdateReminder = async (
   return client.reminder.update({
     where: { id },
     data,
+  });
+};
+
+export const dbUpdateReminderStatus = async (
+  id: string,
+  status: ReminderStatus,
+  tx?: Prisma.TransactionClient,
+) => {
+  const client = tx ?? prisma;
+  return client.reminder.update({
+    where: { id },
+    data: { status },
   });
 };
 

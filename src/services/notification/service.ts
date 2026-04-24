@@ -4,21 +4,42 @@ import {
   dbCreateNotification,
   dbListNotificationsForRecipient,
   dbMarkNotificationReadForRecipient,
+  dbMarkAllNotificationsReadForRecipient,
 } from "./db";
 
 export const createNotification = async (
   data: CreateNotificationRequest,
   tx?: Prisma.TransactionClient,
 ) => {
-  return dbCreateNotification(
+  console.log(
+    `[NotificationService.create] Creating notification`,
     {
       title: data.title,
       body: data.body,
-      recipient: { connect: { id: data.recipientId } },
-      ...(data.leadId ? { lead: { connect: { id: data.leadId } } } : {}),
-    },
-    tx,
+      recipientId: data.recipientId,
+      leadId: data.leadId,
+    }
   );
+
+  try {
+    const result = await dbCreateNotification(
+      {
+        title: data.title,
+        body: data.body,
+        recipient: { connect: { id: data.recipientId } },
+        ...(data.leadId ? { lead: { connect: { id: data.leadId } } } : {}),
+      },
+      tx,
+    );
+    console.log(`[NotificationService.create] Notification created successfully:`, result);
+    return result;
+  } catch (error) {
+    console.error(
+      `[NotificationService.create] Error creating notification:`,
+      error
+    );
+    throw error;
+  }
 };
 
 export const listNotifications = async (
@@ -34,4 +55,8 @@ export const markNotificationRead = async (profile: Profile, id: string) => {
     throw new Error("Notification not found or access denied");
   }
   return updated;
+};
+
+export const markAllNotificationsRead = async (profile: Profile) => {
+  return dbMarkAllNotificationsReadForRecipient(profile.id);
 };

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     const data = await NotificationService.list(profile, params);
 
-    return NextResponse.json(data);
+    return NextResponse.json({ success: true, data });
   } catch (error) {
     return handleRouteError(error);
   }
