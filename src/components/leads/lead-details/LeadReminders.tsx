@@ -4,7 +4,7 @@ import {
 } from "@/lib/tanstack/useReminders";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Plus,
   Calendar,
@@ -55,16 +55,15 @@ export function LeadReminders({ leadId }: { leadId: string }) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-medium">Scheduled Reminders</h3>
-          <p className="text-sm text-muted-foreground">
-            Manage reminders for following up with this lead.
-          </p>
-        </div>
+    <Card className="border shadow-sm overflow-hidden">
+      <CardHeader className="bg-muted/30 border-b py-3 flex flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+          <Bell className="h-3.5 w-3.5" />
+          Scheduled Reminders
+        </CardTitle>
         <CreateReminderDialog leadId={leadId} />
-      </div>
+      </CardHeader>
+      <CardContent className="pt-6">
 
       {reminders.length === 0 ? (
         <Card className="border-dashed">
@@ -174,6 +173,7 @@ export function LeadReminders({ leadId }: { leadId: string }) {
           })}
         </div>
       )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }

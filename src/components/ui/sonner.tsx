@@ -9,7 +9,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme="light"
       className="toaster group"
       icons={{
         success: (
@@ -30,15 +30,26 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
+          "--normal-bg": "oklch(1 0 0)",
+          "--normal-text": "oklch(0.145 0 0)",
+          "--normal-border": "oklch(0.922 0 0)",
           "--border-radius": "var(--radius)",
+          "--success-bg": "oklch(1 0 0)",
+          "--success-text": "oklch(0.145 0 0)",
+          "--success-border": "oklch(0.922 0 0)",
+          "--error-bg": "oklch(1 0 0)",
+          "--error-text": "oklch(0.145 0 0)",
+          "--error-border": "oklch(0.922 0 0)",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
-          toast: "cn-toast",
+          toast: "group toast group-[.toaster]:bg-white group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+          description: "group-[.toast]:text-muted-foreground",
+          actionButton:
+            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+          cancelButton:
+            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
       {...props}

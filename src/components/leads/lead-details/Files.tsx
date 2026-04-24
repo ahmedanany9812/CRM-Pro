@@ -3,7 +3,7 @@
 import { useAttachments, useUploadAttachment, useDeleteAttachment } from "@/lib/tanstack/useAttachments";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, FileIcon, Loader2, Plus, Trash2, AlertCircle } from "lucide-react";
+import { Download, FileIcon, Loader2, Plus, Trash2, AlertCircle, FolderOpen } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -88,9 +88,12 @@ export function Files({ leadId }: { leadId: string }) {
   }
 
   return (
-    <Card className="border shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl font-bold">Files & Attachments</CardTitle>
+    <Card className="border shadow-sm overflow-hidden">
+      <CardHeader className="bg-muted/30 border-b py-3 flex flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+          <FolderOpen className="h-3.5 w-3.5" />
+          Files & Attachments
+        </CardTitle>
         <div className="relative">
           <input
             type="file"
