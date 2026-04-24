@@ -80,12 +80,16 @@ async function sendInvitationEmail(params: {
     : "You're invited to Whispyr CRM";
 
   try {
-    await resend.emails.send({
+    const { error: resendError } = await resend.emails.send({
       from: "Whispyr CRM <onboarding@resend.dev>",
       to: params.email,
       subject,
       html: generateInviteEmailHTML(params.name, magicLink, params.isReminder),
     });
+
+    if (resendError) {
+      throw new Error(resendError.message);
+    }
   } catch (error) {
     console.warn("Resend failed, falling back to Supabase built-in invitation:", error);
     
