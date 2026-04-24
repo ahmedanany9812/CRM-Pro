@@ -87,7 +87,17 @@ async function sendInvitationEmail(params: {
       html: generateInviteEmailHTML(params.name, magicLink, params.isReminder),
     });
   } catch (error) {
-    console.error("Email Sending Error:", error);
+    console.warn("Resend failed, falling back to Supabase built-in invitation:", error);
+    
+    // Fallback: Let Supabase send the invitation using its default template/SMTP
+    const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+      params.email,
+      { redirectTo: redirectUrl }
+    );
+    
+    if (inviteError) {
+      console.error("Supabase fallback invitation also failed:", inviteError);
+    }
   }
 
   return { magicLink };
