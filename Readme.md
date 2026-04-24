@@ -78,5 +78,4 @@ src/
 
 ## 📄 License
 
-This project is proprietary.
-All rights reserved.
+This project is proprietary. All rights reserved.
