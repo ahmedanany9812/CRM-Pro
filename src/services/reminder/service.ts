@@ -68,8 +68,7 @@ export const fireReminder = async (reminderId: string) => {
 
   return await prisma.$transaction(async (tx) => {
     try {
-      // Create notification for the assigned user
-      const notification = await NotificationService.create(
+      await NotificationService.create(
         {
           title: "Reminder Due",
           body: reminder.title,
