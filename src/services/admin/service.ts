@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { createClient as createSupabaseAdmin } from "@/lib/supabase/admin";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { resend } from "@/lib/resend";
 import { generateInviteEmailHTML } from "./helpers";
 import {
@@ -37,7 +37,7 @@ async function sendInvitationEmail(params: {
   type: "invite" | "magiclink" | "recovery";
   isReminder?: boolean;
 }) {
-  const supabaseAdmin = createSupabaseAdmin();
+
   const { email, type: preferredType } = params;
   const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
   const options = { redirectTo: redirectUrl };
@@ -98,7 +98,7 @@ export async function createUser(data: CreateUserSchema) {
   if (existingUser) {
     throw new AdminServiceError("A user with this email already exists", 409);
   }
-  const supabaseAdmin = createSupabaseAdmin();
+
   const tempPassword = uuidv4();
 
   const { data: authData, error: authError } =

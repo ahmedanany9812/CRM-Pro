@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect, Suspense } from "react";
-import { createClient } from "../../../lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -38,7 +38,7 @@ function LoginForm() {
     setError("");
 
     try {
-      const { error } = await createClient().auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });

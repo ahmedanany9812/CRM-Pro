@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authenticateUser } from "@/utils/authenticateUser";
 import { handleRouteError } from "@/utils/handleRouteError";
 import { getProfile, updateProfile, updateProfileSchema } from "@/services/profile";
-import { createClient as createSupabaseServerClient } from "@/lib/supabase/server";
+import { supabase } from "@/lib/supabase/server";
 
 /**
  * GET /api/profile
@@ -25,12 +25,12 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const user = await authenticateUser();
-    const supabase = await createSupabaseServerClient();
+    const client = await supabase();
 
     const body = await req.json();
     const data = updateProfileSchema.parse(body);
 
-    const updatedProfile = await updateProfile(user.id, data, supabase);
+    const updatedProfile = await updateProfile(user.id, data, client);
 
     return NextResponse.json({ success: true, data: updatedProfile });
   } catch (error) {

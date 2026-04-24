@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogOut, Settings, ChevronsUpDown } from "lucide-react";
 import { Profile } from "@/generated/prisma/client";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -19,7 +19,7 @@ export default function SideFooter({ profile }: { profile: Profile }) {
   const router = useRouter();
 
   const handlelogout = async () => {
-    await createClient().auth.signOut();
+    await supabase.auth.signOut();
     router.push("/login");
     router.refresh();
   };

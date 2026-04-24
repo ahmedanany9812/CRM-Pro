@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { createClient as createSupabaseServerClient } from "@/lib/supabase/server";
+import { supabase } from "@/lib/supabase/server";
 import { Role } from "@/generated/prisma/enums";
 import { Profile } from "@/generated/prisma/client";
 
@@ -21,10 +21,10 @@ export class AuthenticationError extends Error {
 export async function authenticateUser(
   allowedRoles?: Role[],
 ): Promise<Profile> {
-  const supabase = await createSupabaseServerClient();
+  const client = await supabase();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await client.auth.getUser();
 
   if (!user) {
     throw new AuthenticationError("Unauthorized", 401);

@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import AppSidebar from "@/components/sidebar/AppSidebar";
-import { createClient } from "@/lib/supabase/server";
+import { supabase } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { QueryProvider } from "@/providers/queryProvider";
@@ -28,10 +28,10 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
+  const client = await supabase();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await client.auth.getUser();
   if (!user) {
     redirect("/login");
   }
@@ -39,7 +39,7 @@ export default async function DashboardLayout({
     where: { id: user.id },
   });
   if (!profile || !profile.isActive) {
-    await supabase.auth.signOut();
+    await client.auth.signOut();
     redirect("/login?message=User profile not found or is inactive");
   }
 

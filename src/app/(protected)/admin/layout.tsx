@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { supabase } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Role } from "@/generated/prisma/enums";
@@ -8,8 +8,8 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const client = await supabase();
+  const { data: { user } } = await client.auth.getUser();
   
   if (!user) {
     redirect("/login");
@@ -20,7 +20,7 @@ export default async function AdminLayout({
   });
 
   if (!profile || !profile.isActive) {
-    await supabase.auth.signOut();
+    await client.auth.signOut();
     redirect("/login");
   }
 

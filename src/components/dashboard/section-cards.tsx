@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
+import { supabase } from "@/lib/supabase/server";
 import { LeadStatus, Role, ReminderStatus } from "@/generated/prisma/enums";
 import { startOfDay, endOfDay } from "date-fns";
 import { Clock, ArrowRight } from "lucide-react";
@@ -14,10 +14,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export async function SectionCards() {
-  const supabase = await createClient();
+  const client = await supabase();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await client.auth.getUser();
 
   if (!user) return null;
 
