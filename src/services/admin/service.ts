@@ -37,7 +37,6 @@ async function sendInvitationEmail(params: {
   type: "invite" | "magiclink" | "recovery";
   isReminder?: boolean;
 }) {
-
   const { email, type: preferredType } = params;
   const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
   const options = { redirectTo: redirectUrl };
@@ -45,18 +44,18 @@ async function sendInvitationEmail(params: {
   let result;
   try {
     // We always prefer 'invite' type for fresh users to get token_hash benefits
-    result = await supabaseAdmin.auth.admin.generateLink({ 
-      type: preferredType, 
-      email, 
-      options 
+    result = await supabaseAdmin.auth.admin.generateLink({
+      type: preferredType,
+      email,
+      options,
     });
-    
+
     if (result.error?.message?.includes("already been registered")) {
       // Fallback to magiclink if user exists
-      result = await supabaseAdmin.auth.admin.generateLink({ 
-        type: "magiclink", 
-        email, 
-        options 
+      result = await supabaseAdmin.auth.admin.generateLink({
+        type: "magiclink",
+        email,
+        options,
       });
     }
   } catch (err) {
@@ -91,16 +90,23 @@ async function sendInvitationEmail(params: {
       throw new Error(resendError.message);
     }
   } catch (error) {
-    console.warn("Resend failed, falling back to Supabase built-in invitation:", error);
-    
-    // Fallback: Let Supabase send the invitation using its default template/SMTP
-    const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-      params.email,
-      { redirectTo: redirectUrl }
+    console.warn(
+      "Resend failed, falling back to Supabase built-in invitation:",
+      error,
     );
-    
+
+    // Fallback: Let Supabase send the invitation using its default template/SMTP
+    const { error: inviteError } =
+      await supabaseAdmin.auth.admin.inviteUserByEmail(params.email, {
+        redirectTo: redirectUrl,
+      });
+
     if (inviteError) {
       console.error("Supabase fallback invitation also failed:", inviteError);
+      throw new AdminServiceError(
+        `All email providers failed. Supabase error: ${inviteError.message}`,
+        500,
+      );
     }
   }
 
